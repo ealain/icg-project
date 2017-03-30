@@ -9,6 +9,7 @@ private:
     int height_;
     GLuint framebuffer_object_id_;
     GLuint color_texture_id_;
+    GLuint program_id_;
 
 public:
     // Warning: overrides viewport!!
@@ -26,6 +27,15 @@ public:
     int Init(int image_width, int image_height, bool use_interpolation = false) {
 	this->width_ = image_width;
 	this->height_ = image_height;
+
+	// Compile the shaders.
+	program_id_ = icg_helper::LoadShaders("heightmap_vshader.glsl",
+					      "heightmap_fshader.glsl");
+	if(!program_id_) {
+	    exit(EXIT_FAILURE);
+	}
+
+	glUseProgram(program_id_);
 
 	// Create color attachment
 	{
@@ -62,8 +72,12 @@ public:
 		GL_FRAMEBUFFER_COMPLETE) {
 		cerr << "!!!ERROR: Framebuffer not OK :(" << endl;
 	    }
-	    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	    glBindFramebuffer(GL_FRAMEBUFFER, 0); // avoid pollution
 	}
+
+	// To prevent the current object from being polluted
+	glBindVertexArray(0);
+	glUseProgram(0);
 
 	return color_texture_id_;
     }
