@@ -17,10 +17,7 @@ void main() {
   // TODO 6: animate the height of the grid points as a sine function of the
   // 'time' and the position ('uv') within the grid
   float dist = uv[0] + uv[1];
-  float waves_amplitude = 0.1;
-  float time_attenuation = 0.3;
-  float height = waves_amplitude * sin(3 * 2 * 3.14 * dist + time * time_attenuation);
-  vec3 pos_3d = vec3(position.x, height, -position.y);
+  vec3 pos_3d = vec3(position.x, 0.0, -position.y);
 
   gl_Position = MVP * vec4(pos_3d, 1.0);
 }

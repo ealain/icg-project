@@ -1,6 +1,7 @@
 #pragma once
 #include "icg_helper.h"
 #include <glm/gtc/type_ptr.hpp>
+#define grid_dim 100                       // size of the grid
 
 class Grid {
 
@@ -12,6 +13,7 @@ private:
   GLuint texture_id_;                     // texture ID
   GLuint num_indices_;                    // number of vertices to render
   GLuint MVP_id_;                         // model, view, proj matrix ID
+  //int grid_dim = 200;    
 
 public:
   void Init() {
@@ -34,43 +36,27 @@ public:
       std::vector<GLuint> indices;
       // TODO 5: make a triangle grid with dimension 100x100.
       // always two subsequent entries in 'vertices' form a 2D vertex position.
-        int grid_dim = 100;
         for (float i = 0.0f; i < grid_dim; i++){
-            for(float j = 0.f; j < grid_dim; j++){
-                vertices.push_back((i/99.0f)*2.0f-1.0f);
-                vertices.push_back((j/99.0f)*2.0f-1.0f);
+            for(float j = 0.0f; j < grid_dim; j++){
+                vertices.push_back((i/(grid_dim -1))*2.0f-1.0f);
+                vertices.push_back((j/(grid_dim -1))*2.0f-1.0f);
             }
         }
 
         for(int i = 0; i < grid_dim - 1 ; i++){
             for(int j = 0; j < grid_dim - 1; j++){
                 //first triangle
-                indices.push_back(j+i*grid_dim);
-                indices.push_back(j+1+i*grid_dim);
-                indices.push_back(j+grid_dim+i*grid_dim);
+                indices.push_back(j + i * grid_dim);
+                indices.push_back(j + 1 + i * grid_dim);
+                indices.push_back(j + grid_dim + i * grid_dim);
                 //second triangle
                 indices.push_back(j + 1 + i * grid_dim);
                 indices.push_back(j + grid_dim + i * grid_dim);
-                indices.push_back(j + 101 + i * grid_dim);
+                indices.push_back(j + grid_dim + 1 + i * grid_dim);
             }
         }
 
-      // the given code below are the vertices for a simple quad.
-      // your grid should have the same dimension as that quad, i.e.,
-      // reach from [-1, -1] to [1, 1].
-
-      // vertex position of the triangles.
-      //vertices.push_back(-1.0f); vertices.push_back( 1.0f);
-      //vertices.push_back( 1.0f); vertices.push_back( 1.0f);
-      //vertices.push_back( 1.0f); vertices.push_back(-1.0f);
-      //vertices.push_back(-1.0f); vertices.push_back(-1.0f);
-
-      // and indices.
-      //indices.push_back(0);
-      //indices.push_back(1);
-      //indices.push_back(3);
-      //indices.push_back(2);
-
+      
       num_indices_ = indices.size();
 
       // position buffer
