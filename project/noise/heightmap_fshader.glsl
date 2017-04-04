@@ -5,7 +5,7 @@ out vec3 color;
 uniform float grid_dim;
 uniform vec2 ratio;
 
-uniform vec2 grad_values[81]; // (Grid dim + 1) * (GRID_DIM + 1)
+uniform vec2 grad_values[225]; // (GRID_DIM + 1) * (GRID_DIM + 1)
 
 vec2 g0, g1, g2, g3;
 vec2 d0, d1, d2, d3;
