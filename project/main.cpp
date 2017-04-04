@@ -9,8 +9,9 @@
 
 #include "grid/grid.h"
 
-#include "framebuffers/framebuffer.h"
+#include "framebuffer.h"
 #include "trackball.h"
+#include "noise/heightmap.h"
 
 Grid grid;
 
@@ -26,9 +27,10 @@ mat4 old_trackball_matrix;
 mat4 quad_model_matrix;
 float y_last;
 
-FrameBuffer fb_heightmap;
+FrameBuffer framebuffer;
 
 Trackball trackball;
+Heightmap noise;
 
 mat4 PerspectiveProjection(float fovy, float aspect, float near, float far) {
     // Create a perspective projection matrix given the field of view,
@@ -72,12 +74,21 @@ mat4 LookAt(vec3 eye, vec3 center, vec3 up) {
 }
 
 void Init() {
-    fb_heightmap.Init(window_width, window_height);
+    GLuint noise_texture = framebuffer.Init(window_width, window_height);
+
+
 
     // Sets background color
     glClearColor(0.937, 0.937, 0.937 /*gray*/, 1.0 /*solid*/);
 
-    grid.Init();
+    noise.Init(512, 8);
+
+    framebuffer.Bind();
+    noise.Draw();
+    framebuffer.Unbind();
+
+    grid.Init(noise_texture);
+
 
     // Enable depth test.
     glEnable(GL_DEPTH_TEST);
@@ -99,6 +110,12 @@ void Init() {
 // Gets called for every frame.
 void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    //framebuffer.Bind();
+    //noise.Draw();
+    //framebuffer.Unbind();
+
+
 
     const float time = glfwGetTime();
 

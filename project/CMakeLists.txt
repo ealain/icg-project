@@ -11,10 +11,8 @@ copy_files_once(${TEXTURES})
 # list all the files you want to copy everytime
 # you build (ie, you want the shaders there)
 file(GLOB SHADERS
-  grid/grid_vshader.glsl
-  grid/grid_fshader.glsl
-  framebuffers/heightmap_fshader.glsl
-  framebuffers/heightmap_vshader.glsl)
+  grid/*.glsl
+  noise/*.glsl)
 deploy_shaders_to_build_dir(${SHADERS})
 
 add_executable(${EXERCISENAME} ${SOURCES} ${HEADERS} ${SHADERS})

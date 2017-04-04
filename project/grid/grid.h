@@ -12,14 +12,14 @@ private:
   GLuint program_id_;                     // GLSL shader program ID
   GLuint texture_id_;                     // texture ID
   GLuint num_indices_;                    // number of vertices to render
-  GLuint MVP_id_;                         // model, view, proj matrix ID
+  GLuint MVP_id_;     
+  GLuint texture_noise;                    // model, view, proj matrix ID
   //int grid_dim = 200;    
 
 public:
-  void Init() {
+  void Init(GLuint tex_noise = -1) {
     // compile the shaders.
-    program_id_ = icg_helper::LoadShaders("grid_vshader.glsl",
-					  "grid_fshader.glsl");
+    program_id_ = icg_helper::LoadShaders("grid_vshader.glsl", "grid_fshader.glsl");
     if(!program_id_) {
       exit(EXIT_FAILURE);
     }
@@ -106,6 +106,8 @@ public:
 		     GL_RGBA, GL_UNSIGNED_BYTE, image);
       }
 
+      texture_noise = (tex_noise==-1)? texture_id_ : tex_noise;
+
       GLuint tex_id = glGetUniformLocation(program_id_, "tex");
       glUniform1i(tex_id, 0 /*GL_TEXTURE0*/);
 
@@ -116,6 +118,7 @@ public:
 
     // other uniforms
     MVP_id_ = glGetUniformLocation(program_id_, "MVP");
+
 
     // to avoid the current object being polluted
     glBindVertexArray(0);
@@ -130,6 +133,8 @@ public:
     glDeleteVertexArrays(1, &vertex_array_id_);
     glDeleteProgram(program_id_);
     glDeleteTextures(1, &texture_id_);
+    glDeleteTextures(1, &texture_noise);
+
   }
 
   void Draw(float time, const glm::mat4 &model = IDENTITY_MATRIX,
@@ -140,7 +145,7 @@ public:
 
     // bind textures
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture_id_);
+    glBindTexture(GL_TEXTURE_2D, texture_noise);
 
     // setup MVP
     glm::mat4 MVP = projection*view*model;
@@ -152,7 +157,7 @@ public:
     // draw
     // TODO 5: for debugging it can be helpful to draw only the wireframe.
     // You can do that by uncommenting the next line.
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     // TODO 5: depending on how you set up your vertex index buffer, you
     // might have to change GL_TRIANGLE_STRIP to GL_TRIANGLES.
     glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
