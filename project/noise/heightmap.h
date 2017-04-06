@@ -1,8 +1,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
-#define GRID_DIM 3        // Size of the grid (unit: nb of stripes)
-#define HIGH_FREQUENCY 31 // Size of the grid (unit: nb of stripes)
-#define NB_GRADIENTS 53   // Prime number
+#define GRID_DIM 3           // Size of the grid (unit: nb of stripes)
+#define HIGH_FREQUENCY 255   // Size of the grid (unit: nb of stripes)
+#define NB_GRADIENTS 53      // Prime number
 
 // Vertex positions of the two triangles for texture quad
 const GLfloat triangle_vertex_positions[] = {-1.0f, -1.0f, 0.0f,
@@ -24,25 +24,9 @@ private:
     GLuint vertex_buffer_object_gradient_values_;
 
 public:
-    void Init(int resolution_x, int resolution_y , int grid_dim, int f_max = 0) {
+    void Init(int resolution_x, int resolution_y) {
 	resolution_x_ = resolution_x;
 	resolution_y_ = resolution_y;
-	if(grid_dim != GRID_DIM || (f_max != HIGH_FREQUENCY && f_max != 0)) {
-	    cout << "\n\nEither GRID_DIM in heightmap.h doesn't match the grid ";
-	    cout << "dimension provided to Grid::Init()\nPlease change ";
-	    cout << "GRID_DIM to the appropriate value.\n" << endl;
-	    cout << "or HIGH_FREQUENCY in heightmap.h doesn't match the ";
-	    cout << "frequency provided to Grid::Init()\nPlease change ";
-	    cout << "HIGH_FREQUENCY to the appropriate value.\n" << endl;
-	    cout << "Be careful, values should be modified accordingly in shader.\n\n" << endl;
-	}
-	grid_dim_ = GRID_DIM;
-	
-	if(f_max == 0)
-	    // Assuming one wants the lower frequency possible
-	    f_max_ = grid_dim_;
-	else
-	    f_max_ = f_max;
 
 	// Compile the shaders
 	program_id_ = icg_helper::LoadShaders("heightmap_vshader.glsl",
@@ -96,12 +80,12 @@ public:
 	// Data for the shader
 	{
 	    GLint grid_dim_id_ = glGetUniformLocation(program_id_, "grid_dim");
-	    glUniform1f(grid_dim_id_, (float)grid_dim_);
+	    glUniform1f(grid_dim_id_, (float)GRID_DIM);
 	    GLint fmax_id_ = glGetUniformLocation(program_id_, "fmax");
-	    glUniform1i(fmax_id_, f_max_);
+	    glUniform1i(fmax_id_, HIGH_FREQUENCY);
 	    GLint ratio_id = glGetUniformLocation(program_id_, "ratio");
-	    glUniform2f(ratio_id, (float)resolution_x_ / (float)f_max_,
-			(float)resolution_y_ / (float)f_max_);
+	    glUniform2f(ratio_id, (float)resolution_x_ / (float)HIGH_FREQUENCY,
+			(float)resolution_y_ / (float)HIGH_FREQUENCY);
 	}
     }
 

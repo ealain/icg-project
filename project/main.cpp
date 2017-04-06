@@ -38,23 +38,21 @@ void Init() {
     // Sets background color
     glClearColor(0.7, 0.7, 0.7 /*gray*/, 1.0 /*solid*/);
 
-    int texture_resolution_x = 1024;
-    int texture_resolution_y = 1024;
-    GLuint noise_texture_id = fb_noise.Init(texture_resolution_x, texture_resolution_y);
-
-    // WARNING: Check console output when changing this value
-    // Files to modify accordingly: heightmap.h & HEIGHTMAP_VSHADER.GLSL
-    int map_scale = 3;
-    int high_frequency = 31;
-    noise.Init(texture_resolution_x, texture_resolution_y, map_scale, high_frequency);
+    int noise_texture_resolution_x = 1024;
+    int noise_texture_resolution_y = 1024;
+    GLuint noise_texture_id = fb_noise.Init(noise_texture_resolution_x,
+					    noise_texture_resolution_y);
+    noise.Init(noise_texture_resolution_x,
+	       noise_texture_resolution_y);
 
     fb_noise.Bind();
     noise.Draw();
     fb_noise.Unbind();
 
-    vec3 light_pos = vec3(0.0f, 0.0f, 1.0f);
+    // Light source position
+    vec3 light_pos = vec3(-1.0f, 1.0f, 1.0f);
+    
     grid.Init(1024, noise_texture_id, light_pos);
-
 
     // Enable depth test.
     glEnable(GL_DEPTH_TEST);
@@ -63,7 +61,7 @@ void Init() {
     // Otherwise LookAt may be used.    
     view_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, -4.0f));
     trackball_matrix = IDENTITY_MATRIX;
-    quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, -0.25f, 0.0f));
+    quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, -1.0f, 0.0f));
 }
 
 // Gets called for every frame.

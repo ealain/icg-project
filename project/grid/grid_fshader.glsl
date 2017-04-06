@@ -16,14 +16,16 @@ void main() {
 
     vec3 normal = normalize(cross(v1, v2));
 
-    vec3 color_tmp = vec3(0.2f);
+    // Setting ambient light
+    vec3 color_tmp = vec3(0.1f, 0.1f, 0.1f);
 
     vec3 light_dir = normalize(light_pos - vec3(MV * vec4(pos_3d, 1.0f)));
 
     float lambert = dot(normal, light_dir);
 
-    vec3 kd = vec3(0.9f, 0.5f, 0.5f);
-    vec3 Ld = vec3(0.9f);
+
+    vec3 kd = vec3(0.557f, 0.33f, 0.204f);
+    vec3 Ld = vec3(1.0f);
 
     if(lambert > 0.0f)
 	color = color_tmp + Ld*kd*lambert;
