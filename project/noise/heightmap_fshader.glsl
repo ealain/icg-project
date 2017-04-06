@@ -7,7 +7,7 @@ uniform vec2 ratio;
 
 uniform int fmax;
 
-uniform vec2 grad_values[2048]; // NB_GRADIENTS is defined in heightmap.h
+uniform vec2 grad_values[53];  // NB_GRADIENTS is defined in heightmap.h
 
 int f;                          // Frequency of the noise in the map
                                 // If the checkerboard has 3 stripes, the frequency is 4
@@ -25,14 +25,14 @@ int i, j;
 void grad() {
     // Given the position of the cell (i,j) in the checkerboard,
     // determines the gradients (vec2) for each corner
-    g0.x = grad_values[int(offset + (f+1) * j + i)][0];
-    g0.y = grad_values[int(offset + (f+1) * j + i)][1];
-    g1.x = grad_values[int(offset + (f+1) * j + i+1)][0];
-    g1.y = grad_values[int(offset + (f+1) * j + i+1)][1];
-    g2.x = grad_values[int(offset + (f+1) * (j+1) + i+1)][0];
-    g2.y = grad_values[int(offset + (f+1) * (j+1) + i+1)][1];
-    g3.x = grad_values[int(offset + (f+1) * (j+1) + i)][0];
-    g3.y = grad_values[int(offset + (f+1) * (j+1) + i)][1];
+    g0.x = grad_values[int(offset + (f+1) * j + i)       % 53][0];
+    g0.y = grad_values[int(offset + (f+1) * j + i)       % 53][1];
+    g1.x = grad_values[int(offset + (f+1) * j + i+1)     % 53][0];
+    g1.y = grad_values[int(offset + (f+1) * j + i+1)     % 53][1];
+    g2.x = grad_values[int(offset + (f+1) * (j+1) + i+1) % 53][0];
+    g2.y = grad_values[int(offset + (f+1) * (j+1) + i+1) % 53][1];
+    g3.x = grad_values[int(offset + (f+1) * (j+1) + i)   % 53][0];
+    g3.y = grad_values[int(offset + (f+1) * (j+1) + i)   % 53][1];
 }
 
 
