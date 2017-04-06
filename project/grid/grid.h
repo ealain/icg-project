@@ -2,11 +2,12 @@
 #include "icg_helper.h"
 #include <glm/gtc/type_ptr.hpp>
 
+
 class Grid {
 
 private:
     int grid_dim_;                          // Width/height of the grid
-    
+
     GLuint vertex_array_id_;                // Vertex array object
     GLuint vertex_buffer_object_position_;  // Memory buffer for positions
     GLuint vertex_buffer_object_index_;     // Memory buffer for indices
@@ -14,12 +15,13 @@ private:
     GLuint texture_id_;                     // Texture ID
     GLuint num_indices_;                    // Number of vertices to render
     GLuint MVP_id_;                         // Model, view, proj matrix ID
+    GLuint MV_id_;
 
 public:
-    void Init(int grid_size, GLuint texture_id) {
+    void Init(int grid_size, GLuint texture_id, glm::vec3 light_pos = glm::vec3(0.0f, 0.0f, 1.0f)) {
 	grid_dim_ = grid_size;
 	texture_id_ = texture_id;
-	
+
 	// Compile the shaders
 	program_id_ = icg_helper::LoadShaders("grid_vshader.glsl", "grid_fshader.glsl");
 	if(!program_id_) {
@@ -57,7 +59,7 @@ public:
 		    indices.push_back(j + grid_dim_ + 1 + i * grid_dim_);
 		}
 	    }
-	    
+
 	    num_indices_ = indices.size();
 
 	    // Position buffer
@@ -81,7 +83,10 @@ public:
 
 	// Other uniforms
 	MVP_id_ = glGetUniformLocation(program_id_, "MVP");
+	MV_id_ = glGetUniformLocation(program_id_, "MV");
 
+	GLuint light_pos_id = glGetUniformLocation(program_id_, "MV");
+	glUniform3f(light_pos_id, (GLfloat)light_pos.x, (GLfloat)light_pos.y, (GLfloat)light_pos.z);
 
 	// To avoid the current object being polluted
 	glBindVertexArray(0);
@@ -112,6 +117,9 @@ public:
 	// Setup MVP
 	glm::mat4 MVP = projection*view*model;
 	glUniformMatrix4fv(MVP_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(MVP));
+	glm::mat4 MV = view*model;
+	glUniformMatrix4fv(MV_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(MV));
+
 
 	// For debugging it can be helpful to draw only the wireframe
 	// Do that by uncommenting the next line

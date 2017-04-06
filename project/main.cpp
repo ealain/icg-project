@@ -25,6 +25,8 @@ mat4 old_trackball_matrix;
 mat4 quad_model_matrix;
 float y_last;
 
+vec3 light_pos;
+
 FrameBuffer fb_noise;
 
 Grid grid;
@@ -36,8 +38,8 @@ void Init() {
     // Sets background color
     glClearColor(0.7, 0.7, 0.7 /*gray*/, 1.0 /*solid*/);
 
-    int texture_resolution_x = 512;
-    int texture_resolution_y = 512;
+    int texture_resolution_x = 1024;
+    int texture_resolution_y = 1024;
     GLuint noise_texture_id = fb_noise.Init(texture_resolution_x, texture_resolution_y);
 
     // WARNING: Check console output when changing this value
@@ -50,7 +52,8 @@ void Init() {
     noise.Draw();
     fb_noise.Unbind();
 
-    grid.Init(100, noise_texture_id);
+    vec3 light_pos = vec3(0.0f, 0.0f, 1.0f);
+    grid.Init(1024, noise_texture_id, light_pos);
 
 
     // Enable depth test.
