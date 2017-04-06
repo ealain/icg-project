@@ -34,7 +34,7 @@ Heightmap noise;
 
 void Init() {
     // Sets background color
-    glClearColor(0.937, 0.937, 0.937 /*gray*/, 1.0 /*solid*/);
+    glClearColor(0.7, 0.7, 0.7 /*gray*/, 1.0 /*solid*/);
 
     int texture_resolution_x = 512;
     int texture_resolution_y = 512;
@@ -42,8 +42,9 @@ void Init() {
 
     // WARNING: Check console output when changing this value
     // Files to modify accordingly: heightmap.h & HEIGHTMAP_VSHADER.GLSL
-    int map_scale = 14;
-    noise.Init(texture_resolution_x, texture_resolution_y, map_scale);
+    int map_scale = 3;
+    int high_frequency = 31;
+    noise.Init(texture_resolution_x, texture_resolution_y, map_scale, high_frequency);
 
     fb_noise.Bind();
     noise.Draw();

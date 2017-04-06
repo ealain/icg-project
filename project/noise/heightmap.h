@@ -1,7 +1,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
-#define GRID_DIM 14
-#define NB_GRADIENTS 225 // MUST be equal to (GRID_DIM + 1) * (GRID_DIM + 1)
+#define GRID_DIM 3
+#define HIGH_FREQUENCY 31 // Equals 2 ^ (HIGH_F-1)
+#define NB_GRADIENTS 2048 // MUST be greater than 4 ^ HIGH_F
 
 // Vertex positions of the two triangles for texture quad
 const GLfloat triangle_vertex_positions[] = {-1.0f, -1.0f, 0.0f,
@@ -12,11 +13,10 @@ const GLfloat triangle_vertex_positions[] = {-1.0f, -1.0f, 0.0f,
 class Heightmap {
 
 private:
-    // The resolution is the "window_width" of the texture
-    int resolution_x_, resolution_y_;
-    // The grid_dim determines the scale of the noise
-    // Note : there is no real grid, it's an abstraction
-    int grid_dim_;
+    int resolution_x_, resolution_y_;  // The resolution is the "window_width" of the texture
+    int grid_dim_;                     // The grid_dim determines the lower frequency of the noise
+    int f_max_;                        // Higher frequency of the noise
+
     GLuint program_id_;
     GLuint vertex_array_id_;
     GLuint vertex_buffer_object_position_;
@@ -24,18 +24,28 @@ private:
     GLuint vertex_buffer_object_gradient_values_;
 
 public:
-    void Init(int resolution_x, int resolution_y , int grid_dim) {
+    void Init(int resolution_x, int resolution_y , int grid_dim, int f_max = 0) {
 	resolution_x_ = resolution_x;
 	resolution_y_ = resolution_y;
-	if(grid_dim != GRID_DIM) {
-	    cout << "\n\nGRID_DIM in heightmap.h doesn't match the grid ";
+	if(grid_dim != GRID_DIM || (f_max != HIGH_FREQUENCY && f_max != 0)) {
+	    cout << "\n\nEither GRID_DIM in heightmap.h doesn't match the grid ";
 	    cout << "dimension provided to Grid::Init()\nPlease change ";
-	    cout << "GRID_DIM to the appropriate value.\n\n" << endl;
+	    cout << "GRID_DIM to the appropriate value.\n" << endl;
+	    cout << "or HIGH_FREQUENCY in heightmap.h doesn't match the ";
+	    cout << "frequency provided to Grid::Init()\nPlease change ";
+	    cout << "HIGH_FREQUENCY to the appropriate value.\n" << endl;
+	    cout << "Be careful, values should be modified accordingly in shader.\n\n" << endl;
 	}
 	grid_dim_ = GRID_DIM;
 	
+	if(f_max == 0)
+	    // Assuming one wants the lower frequency possible
+	    f_max_ = grid_dim_;
+	else
+	    f_max_ = f_max;
+
 	// Compile the shaders
-    program_id_ = icg_helper::LoadShaders("heightmap_vshader.glsl",
+	program_id_ = icg_helper::LoadShaders("heightmap_vshader.glsl",
 					      "heightmap_fshader.glsl");
 	if(!program_id_) {
 	    exit(EXIT_FAILURE);
@@ -85,17 +95,17 @@ public:
 
 	// Data for the shader
 	{
-	    GLint grid_dim__id = glGetUniformLocation(program_id_, "grid_dim");
-	    glUniform1f(grid_dim__id, (float)grid_dim_);
+	    GLint grid_dim_id_ = glGetUniformLocation(program_id_, "grid_dim");
+	    glUniform1f(grid_dim_id_, (float)grid_dim_);
+	    GLint fmax_id_ = glGetUniformLocation(program_id_, "fmax");
+	    glUniform1i(fmax_id_, f_max_);
 	    GLint ratio_id = glGetUniformLocation(program_id_, "ratio");
-	    glUniform2f(ratio_id, (float)resolution_x_ / grid_dim_,
-			(float)resolution_y_ / grid_dim_);
+	    glUniform2f(ratio_id, (float)resolution_x_ / (float)f_max_,
+			(float)resolution_y_ / (float)f_max_);
 	}
     }
 
     void Draw() {
-	// Uncomment to show the grid
-	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glClear(GL_COLOR_BUFFER_BIT);
 	
 	glUseProgram(program_id_);

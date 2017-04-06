@@ -5,69 +5,96 @@ out vec3 color;
 uniform float grid_dim;
 uniform vec2 ratio;
 
-uniform vec2 grad_values[225]; // (GRID_DIM + 1) * (GRID_DIM + 1)
+uniform int fmax;
 
-vec2 g0, g1, g2, g3;
-vec2 d0, d1, d2, d3;
-float s, t, u, v;
+uniform vec2 grad_values[2048]; // NB_GRADIENTS is defined in heightmap.h
 
-// Coordinates of the cell
+int f;                          // Frequency of the noise in the map
+                                // If the checkerboard has 3 stripes, the frequency is 4
+int offset;                     // Offset to read the desired gradients in grad_values
+
+float ratio_x;                  // Number of pixels per stripe (resolution_x / 3)
+float ratio_y;                  // Number of pixels per stripe (resolution_y / 3)
+
+vec2 g0, g1, g2, g3;            // Cell's gradients
+vec2 d0, d1, d2, d3;            // Difference vectors from cell corners to current pixel
+
+// Coordinates of the cell (computed in main())
 int i, j;
 
 void grad() {
-    g0.x = grad_values[int((grid_dim+1) * j + i)][0];
-    g0.y = grad_values[int((grid_dim+1) * j + i)][1];
-    g1.x = grad_values[int((grid_dim+1) * j + i+1)][0];
-    g1.y = grad_values[int((grid_dim+1) * j + i+1)][1];
-    g2.x = grad_values[int((grid_dim+1) * (j+1) + i+1)][0];
-    g2.y = grad_values[int((grid_dim+1) * (j+1) + i+1)][1];
-    g3.x = grad_values[int((grid_dim+1) * (j+1) + i)][0];
-    g3.y = grad_values[int((grid_dim+1) * (j+1) + i)][1];
+    // Given the position of the cell (i,j) in the checkerboard,
+    // determines the gradients (vec2) for each corner
+    g0.x = grad_values[int(offset + (f+1) * j + i)][0];
+    g0.y = grad_values[int(offset + (f+1) * j + i)][1];
+    g1.x = grad_values[int(offset + (f+1) * j + i+1)][0];
+    g1.y = grad_values[int(offset + (f+1) * j + i+1)][1];
+    g2.x = grad_values[int(offset + (f+1) * (j+1) + i+1)][0];
+    g2.y = grad_values[int(offset + (f+1) * (j+1) + i+1)][1];
+    g3.x = grad_values[int(offset + (f+1) * (j+1) + i)][0];
+    g3.y = grad_values[int(offset + (f+1) * (j+1) + i)][1];
 }
 
 
 void diff() {
-    d0.x = (gl_FragCoord.x / ratio[0] - int(gl_FragCoord.x / ratio[0]));
-    d0.y = (gl_FragCoord.y / ratio[1] - int(gl_FragCoord.y / ratio[1]));
+    // Given the positions of the pixel p and the corners fo the cell
+    // c0, c1, c2, c3; compute the vectors p-c0, p-c1,...
+    d0.x = gl_FragCoord.x / ratio_x - i;
+    d0.y = gl_FragCoord.y / ratio_y - j;
 
-    d1.x = (gl_FragCoord.x / ratio[0] - int(gl_FragCoord.x / ratio[0] + 1));
-    d1.y = (gl_FragCoord.y / ratio[1] - int(gl_FragCoord.y / ratio[1]));
+    d1.x = gl_FragCoord.x / ratio_x - (i+1);
+    d1.y = gl_FragCoord.y / ratio_y - j;
 
-    d2.x = (gl_FragCoord.x / ratio[0] - int(gl_FragCoord.x / ratio[0] + 1));
-    d2.y = (gl_FragCoord.y / ratio[1] - int(gl_FragCoord.y / ratio[1] + 1));
+    d2.x = gl_FragCoord.x / ratio_x - (i+1);
+    d2.y = gl_FragCoord.y / ratio_y - (j+1);
 
-    d3.x = (gl_FragCoord.x / ratio[0] - int(gl_FragCoord.x / ratio[0]));
-    d3.y = (gl_FragCoord.y / ratio[1] - int(gl_FragCoord.y / ratio[1] + 1));
+    d3.x = gl_FragCoord.x / ratio_x - i;
+    d3.y = gl_FragCoord.y / ratio_y - (j+1);
 }
 
-
-void scal() {
-    s = 0.5f*dot(g0, d0) +0.5f;
-    t = 0.5f*dot(g1, d1) +0.5f;
-    u = 0.5f*dot(g3, d3) +0.5f;
-    v = 0.5f*dot(g2, d2) +0.5f;
-}
-
-float f(float t) {
+float interpolation(float t) {
+    // Smooth interpolation function (C2 continuity)
     return 6*pow(t,5) - 15*pow(t,4) + 10*pow(t,3);
 }
 
-float n() {
-    return mix(mix(s, t, f(gl_FragCoord.x/ratio[0] - int(gl_FragCoord.x / ratio[0]))),
-	       mix(u, v, f(gl_FragCoord.x/ratio[0] - int(gl_FragCoord.x / ratio[0]))),
-	       f(gl_FragCoord.y/ratio[1] - int(gl_FragCoord.y / ratio[1])));
+float perlin_noise() {
+    // Linear interpolation of scalar products
+    return mix(mix(0.5f*dot(g0, d0)+0.5f,
+		   0.5f*dot(g1, d1)+0.5f,
+		   interpolation(gl_FragCoord.x/ratio_x - int(gl_FragCoord.x / ratio_x))),
+
+	       mix(0.5f*dot(g3, d3)+0.5f,
+		   0.5f*dot(g2, d2)+0.5f,
+		   interpolation(gl_FragCoord.x/ratio_x - int(gl_FragCoord.x / ratio_x))),
+
+	       interpolation(gl_FragCoord.y/ratio_y - int(gl_FragCoord.y / ratio_y)));
 }
 
+
+
 void main() {
+    ratio_x = ratio[0];
+    ratio_y = ratio[1];
 
-    i = int(gl_FragCoord.x / ratio[0]);
-    j = int(gl_FragCoord.y / ratio[1]);
+    float n_total = 0.0f;                   // Sum of the noise contributions for distinct freq
+    offset = 0;
+    int iteration;
+    for(f=fmax+1, iteration=1; f >= grid_dim+1; f/=2, iteration++) {
 
-    grad();
-    diff();
-    scal();
+	i = int(gl_FragCoord.x / ratio_x);
+	j = int(gl_FragCoord.y / ratio_y);
 
-    color = vec3(n());
+	grad();
+	diff();
+
+	n_total += perlin_noise() * iteration;
+	offset += int(pow(f, 2));
+	ratio_x *= float(f-1) / (f/2 -1);
+	ratio_y *= float(f-1) / (f/2 -1);
+    }
+
+    color = vec3(n_total / 10);
+
     // Debugging...
     // color = vec3(int(1.2f));
     // color = vec3(gl_FragCoord.x/512 - int(gl_FragCoord.x/512.0f*2.0f)/2.0);
