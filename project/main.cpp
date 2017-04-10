@@ -41,7 +41,7 @@ void Init() {
     int noise_texture_resolution_x = 1024;
     int noise_texture_resolution_y = 1024;
     GLuint noise_texture_id = fb_noise.Init(noise_texture_resolution_x,
-					    noise_texture_resolution_y);
+					    noise_texture_resolution_y, true);
     noise.Init(noise_texture_resolution_x,
 	       noise_texture_resolution_y);
 
@@ -52,7 +52,7 @@ void Init() {
     // Light source position
     vec3 light_pos = vec3(-1.0f, 1.0f, 1.0f);
     
-    grid.Init(1024, noise_texture_id, light_pos);
+    grid.Init(128, noise_texture_id, light_pos);
 
     // Enable depth test.
     glEnable(GL_DEPTH_TEST);

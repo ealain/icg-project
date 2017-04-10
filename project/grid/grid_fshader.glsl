@@ -21,8 +21,8 @@ void main() {
     vec4 green = vec4(0.0, 0.7, 0.0, 1.0); 
     vec4 tmp_color = vec4(0.0, 0.0, 0.0, 0.0); 
 
-    vec3 v1 = dFdx(pos_3d);
-    vec3 v2 = dFdy(pos_3d);
+    vec3 v1 = dFdx(vec3(2*uv.x-1, texture(tex, uv).r, -2*uv.y+1));
+    vec3 v2 = dFdy(vec3(2*uv.x-1, texture(tex, uv).r, -2*uv.y+1));
 
     vec3 normal = normalize(cross(v1, v2));
 
@@ -37,22 +37,17 @@ void main() {
     vec3 kd = vec3(0.557f, 0.33f, 0.204f);
     vec3 Ld = vec3(1.0f);
 
-    if(lambert > 0.0){
-	color = color_tmp + vec4(Ld*kd*lambert,alpha);
-    }
-    else{
-    	color = color_tmp;
-    }
+    color_tmp += vec4(Ld*kd*lambert, alpha);
     
-    // Set up color in function of the height 
+    // Set up color in function of the height
     if(height > 1.0){
-        color = mix(white,color,0.1); 
+        color = mix(white, color_tmp, 0.3);
     }
     else if(height < 0.75){
         color = mix(darken_blue, blue, (height/1.2));
     }
     else {
         tmp_color = mix(green, white, (height/1.2)); 
-        color = mix(tmp_color, color, 0.1); 
+        color = mix(tmp_color, color_tmp, 0.3);
     }
 }
