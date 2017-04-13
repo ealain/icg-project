@@ -54,9 +54,15 @@ To create the fractal Brownian motion, we added the contributions of our noise f
 
 {\it Main contributor: Josselin.}
 
+The framebuffer was mainly reused from the one in the homework 4. As our starting point was the homework 2, we had to be able to render the noise on a grid. 
+
+We adapt the structure so we could generate a noise-texture in the framebuffer. And then transfer it to the grid, so that we could use the -now- noise-texture-heightmap to modify  the height of the grid.
+
 \subsection{Applying altitude}
 
 {\it Main contributor: Enguerrand.}
+
+The height setting is inspired by the homework 2. We read the height-texture in the grid\_vshader and use it to change the gl\_Position of the vertex.
 
 \subsection{Shading}
 
@@ -72,6 +78,7 @@ The second implementation reads the height of the fragment (given in the heightm
 
 {\it Main contributor: Enguerrand.}
 
+The color implementation is basic. We colore the texture regarding it's elevation. The height is the one from the fragment given in the heightmap. We then mix it with the shading to combine the two.
 
 
 \section{Optional parts}
@@ -79,6 +86,17 @@ The second implementation reads the height of the fragment (given in the heightm
 \subsection{Infinite terrain (not completed yet)}
 
 To give the impression of infinite terrain, we would place the camera right above the center of the grid. To ``move'' in the terrain, the user would press the arrow keys. Technically, when pressing the arrow keys, the position of the cells (heightmap) change with time. The cell position change should depends of the view vector.
+
+\section{Fraction of the Workload}
+
+
+\begin{enumerate}
+\item Éloi Alain: 40\%
+\item Enguerrand Granoux: 30\%
+\item Josselin Held: 30\%
+\end{enumerate}
+
+
 
 
 \end{document}
