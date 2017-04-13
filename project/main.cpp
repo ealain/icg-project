@@ -263,6 +263,10 @@ void ErrorCallback(int error, const char* description) {
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-	glfwSetWindowShouldClose(window, GL_TRUE);
+        glfwSetWindowShouldClose(window, GL_TRUE);
+    } else if (key == GLFW_KEY_P && action == GLFW_PRESS) {
+//        float i;
+//        cin >> i;
+        cout << "all right";
     }
 }

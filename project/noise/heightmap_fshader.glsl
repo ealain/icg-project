@@ -7,6 +7,9 @@ uniform vec2 ratio;
 
 uniform int fmax;
 
+uniform float param;
+
+
 uniform vec2 grad_values[53];  // NB_GRADIENTS is defined in heightmap.h
 
 int f;                          // Frequency of the noise in the map
@@ -21,6 +24,7 @@ vec2 d0, d1, d2, d3;            // Difference vectors from cell corners to curre
 
 // Coordinates of the cell (computed in main())
 int i, j;
+
 
 void grad() {
     // Given the position of the cell (i,j) in the checkerboard,
@@ -87,7 +91,7 @@ void main() {
 	grad();
 	diff();
 
-	n_total += perlin_noise() * pow(2.5, iteration);
+	n_total += perlin_noise() * pow(param, iteration);
 	offset += int(pow(f, 2));
 	ratio_x *= float(f-1) / (f/2 -1);
 	ratio_y *= float(f-1) / (f/2 -1);

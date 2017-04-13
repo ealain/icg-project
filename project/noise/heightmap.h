@@ -15,7 +15,8 @@ class Heightmap {
 private:
     int resolution_x_, resolution_y_;  // The resolution is the "window_width" of the texture
     int grid_dim_;                     // The grid_dim determines the lower frequency of the noise
-    int f_max_;                        // Higher frequency of the noise
+    int f_max_;
+    float p = 2.5f;                        // Higher frequency of the noise
 
     GLuint program_id_;
     GLuint vertex_array_id_;
@@ -62,7 +63,7 @@ public:
 	glUseProgram(0);
     }
 
-    void gen_gradients() {
+    void gen_gradients(float p=2.5) {
 	// Gradient generation (NB_GRADIENTS vec2s)
 	{
 	    glm::vec2 values[NB_GRADIENTS];
@@ -86,6 +87,10 @@ public:
 	    GLint ratio_id = glGetUniformLocation(program_id_, "ratio");
 	    glUniform2f(ratio_id, (float)resolution_x_ / (float)HIGH_FREQUENCY,
 			(float)resolution_y_ / (float)HIGH_FREQUENCY);
+        
+        // Passing parameter
+        GLint param = glGetUniformLocation(program_id_, "param");
+    	    glUniform1f(param, p);
 	}
     }
 
