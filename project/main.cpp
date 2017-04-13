@@ -68,10 +68,10 @@ void Init() {
 void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     fb_noise.Bind();
-    glViewport(0, 0, window_width, window_height);
     noise.Draw();
     fb_noise.Unbind();
     // Draw a quad on the ground.
+    glViewport(0, 0, window_width, window_height);
     grid.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
 }
 
@@ -266,19 +266,16 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
     } 
-
-    if (action == GLFW_PRESS) {
-    
+    cout << "ici" << endl;
+    if (action == GLFW_REPEAT || action == GLFW_PRESS) {
         switch(key) {
             case 'P':
                 cout << "Augmenting parameter" << endl;
-                noise.mod(0.01f);
+                noise.mod(0.1f);
                 break;
             case 'L':
                 cout << "Decreasing parameter" << endl;
-                noise.mod(-0.01f);
-
-
+                noise.mod(-0.1f);
                 break;
             default:
                 break;

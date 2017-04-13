@@ -91,13 +91,13 @@ void main() {
 	grad();
 	diff();
 
-	n_total += perlin_noise() * pow(param, iteration);
+	n_total += (perlin_noise() - 0.5f) * pow(param, iteration);
 	offset += int(pow(f, 2));
 	ratio_x *= float(f-1) / (f/2 -1);
 	ratio_y *= float(f-1) / (f/2 -1);
     }
 
-    color = vec3(n_total / pow(2.5, iteration-1));
+    color = vec3(n_total / (0.25f*pow(param, iteration-1)));
 
     // Debugging...
     // color = vec3(int(1.2f));

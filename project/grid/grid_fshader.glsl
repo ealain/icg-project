@@ -27,7 +27,7 @@ void main() {
     vec3 normal = normalize(cross(v1, v2));
 
     // Setting ambient light
-    vec4 color_tmp = vec4(0.1f, 0.1f, 0.1f, alpha);
+    vec4 color_tmp = vec4(0.05f, 0.05f, 0.05f, alpha);
 
     vec3 light_dir = normalize(light_pos - vec3(MV * vec4(pos_3d, 1.0f)));
 
@@ -40,14 +40,13 @@ void main() {
     color_tmp += vec4(Ld*kd*lambert, alpha);
     
     // Set up color in function of the height
-    if(height > 1.0){
-        color = mix(white, color_tmp, 0.3);
+    if(height > 0.6){
+        color = mix(white, color_tmp, 0.4);
     }
-    else if(height < 0.75){
-        color = mix(darken_blue, blue, (height/1.2));
+    else if(height < 0.0){
+        color = mix(darken_blue, blue, height);
     }
     else {
-        tmp_color = mix(green, white, (height/1.2)); 
-        color = mix(tmp_color, color_tmp, 0.3);
+        color = mix(mix(green, white, height / 0.6f), color_tmp, 0.5);
     }
 }
