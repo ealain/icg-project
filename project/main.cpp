@@ -61,13 +61,14 @@ void Init() {
     // Otherwise LookAt may be used.    
     view_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, -4.0f));
     trackball_matrix = IDENTITY_MATRIX;
-    quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, -1.0f, 0.0f));
+    quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, 0.0f));
 }
 
 // Gets called for every frame.
 void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     fb_noise.Bind();
+    glViewport(0, 0, window_width, window_height);
     noise.Draw();
     fb_noise.Unbind();
     // Draw a quad on the ground.
@@ -271,11 +272,11 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         switch(key) {
             case 'P':
                 cout << "Augmenting parameter" << endl;
-                noise.mod(0.1f);
+                noise.mod(0.01f);
                 break;
             case 'L':
                 cout << "Decreasing parameter" << endl;
-                noise.mod(-0.1f);
+                noise.mod(-0.01f);
 
 
                 break;

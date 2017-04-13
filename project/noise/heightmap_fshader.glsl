@@ -63,12 +63,12 @@ float interpolation(float t) {
 
 float perlin_noise() {
     // Linear interpolation of scalar products
-    return mix(mix(0.5f*dot(g0, d0)+0.5f,
-		   0.5f*dot(g1, d1)+0.5f,
+    return mix(mix(0.25f*dot(g0, d0)+0.5f,
+		   0.25f*dot(g1, d1)+0.5f,
 		   interpolation(gl_FragCoord.x/ratio_x - int(gl_FragCoord.x / ratio_x))),
 
-	       mix(0.5f*dot(g3, d3)+0.5f,
-		   0.5f*dot(g2, d2)+0.5f,
+	       mix(0.25f*dot(g3, d3)+0.5f,
+		   0.25f*dot(g2, d2)+0.5f,
 		   interpolation(gl_FragCoord.x/ratio_x - int(gl_FragCoord.x / ratio_x))),
 
 	       interpolation(gl_FragCoord.y/ratio_y - int(gl_FragCoord.y / ratio_y)));
