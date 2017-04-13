@@ -67,9 +67,9 @@ void Init() {
 // Gets called for every frame.
 void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    const float time = glfwGetTime();
-
+    fb_noise.Bind();
+    noise.Draw();
+    fb_noise.Unbind();
     // Draw a quad on the ground.
     grid.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
 }
@@ -264,9 +264,23 @@ void ErrorCallback(int error, const char* description) {
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
-    } else if (key == GLFW_KEY_P && action == GLFW_PRESS) {
-//        float i;
-//        cin >> i;
-        cout << "all right";
+    } 
+
+    if (action == GLFW_PRESS) {
+    
+        switch(key) {
+            case 'P':
+                cout << "Augmenting parameter" << endl;
+                noise.mod(0.1f);
+                break;
+            case 'L':
+                cout << "Decreasing parameter" << endl;
+                noise.mod(-0.1f);
+
+
+                break;
+            default:
+                break;
+        }
     }
 }
