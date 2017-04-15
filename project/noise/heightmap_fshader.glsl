@@ -5,12 +5,16 @@ out vec3 color;
 uniform float grid_dim;
 uniform vec2 ratio;
 
+uniform float time;
+uniform vec3 view_dir;
+
 uniform int fmax;
 
 uniform float param;
 
 
 uniform vec2 grad_values[53];  // NB_GRADIENTS is defined in heightmap.h
+uniform int nb_gradients;
 
 int f;                          // Frequency of the noise in the map
                                 // If the checkerboard has 3 stripes, the frequency is 4
@@ -25,35 +29,50 @@ vec2 d0, d1, d2, d3;            // Difference vectors from cell corners to curre
 // Coordinates of the cell (computed in main())
 int i, j;
 
+// Coordinates taking time into account for movement
+float x, y;
+
 
 void grad() {
     // Given the position of the cell (i,j) in the checkerboard,
     // determines the gradients (vec2) for each corner
-    g0.x = grad_values[int(offset + (f+1) * j + i)       % 53][0];
-    g0.y = grad_values[int(offset + (f+1) * j + i)       % 53][1];
-    g1.x = grad_values[int(offset + (f+1) * j + i+1)     % 53][0];
-    g1.y = grad_values[int(offset + (f+1) * j + i+1)     % 53][1];
-    g2.x = grad_values[int(offset + (f+1) * (j+1) + i+1) % 53][0];
-    g2.y = grad_values[int(offset + (f+1) * (j+1) + i+1) % 53][1];
-    g3.x = grad_values[int(offset + (f+1) * (j+1) + i)   % 53][0];
-    g3.y = grad_values[int(offset + (f+1) * (j+1) + i)   % 53][1];
+    int a = int(offset + (f+1) * j + i) % nb_gradients;
+    int b = int(offset + (f+1) * (j+1) + i) % nb_gradients;
+    int c = int(offset + (f+1) * j + i + 1) % nb_gradients;
+    int d = int(offset + (f+1) * (j+1) + i + 1) % nb_gradients;
+    if(a < 0)
+	a += nb_gradients;
+    if(b < 0)
+	b += nb_gradients;
+    if(c < 0)
+	c += nb_gradients;
+    if(d < 0)
+	d += nb_gradients;
+    g0.x = grad_values[a][0];
+    g0.y = grad_values[a][1];
+    g1.x = grad_values[c][0];
+    g1.y = grad_values[c][1];
+    g2.x = grad_values[d][0];
+    g2.y = grad_values[d][1];
+    g3.x = grad_values[b][0];
+    g3.y = grad_values[b][1];
 }
 
 
 void diff() {
     // Given the positions of the pixel p and the corners fo the cell
     // c0, c1, c2, c3; compute the vectors p-c0, p-c1,...
-    d0.x = gl_FragCoord.x / ratio_x - i;
-    d0.y = gl_FragCoord.y / ratio_y - j;
+    d0.x = x / ratio_x - i;
+    d0.y = y / ratio_y - j;
 
-    d1.x = gl_FragCoord.x / ratio_x - (i+1);
-    d1.y = gl_FragCoord.y / ratio_y - j;
+    d1.x = x / ratio_x - (i+1);
+    d1.y = y / ratio_y - j;
 
-    d2.x = gl_FragCoord.x / ratio_x - (i+1);
-    d2.y = gl_FragCoord.y / ratio_y - (j+1);
+    d2.x = x / ratio_x - (i+1);
+    d2.y = y / ratio_y - (j+1);
 
-    d3.x = gl_FragCoord.x / ratio_x - i;
-    d3.y = gl_FragCoord.y / ratio_y - (j+1);
+    d3.x = x / ratio_x - i;
+    d3.y = y / ratio_y - (j+1);
 }
 
 float interpolation(float t) {
@@ -65,28 +84,35 @@ float perlin_noise() {
     // Linear interpolation of scalar products
     return mix(mix(0.25f*dot(g0, d0)+0.5f,
 		   0.25f*dot(g1, d1)+0.5f,
-		   interpolation(gl_FragCoord.x/ratio_x - int(gl_FragCoord.x / ratio_x))),
+		   interpolation(x/ratio_x - i)),
 
 	       mix(0.25f*dot(g3, d3)+0.5f,
 		   0.25f*dot(g2, d2)+0.5f,
-		   interpolation(gl_FragCoord.x/ratio_x - int(gl_FragCoord.x / ratio_x))),
+		   interpolation(x/ratio_x - i)),
 
-	       interpolation(gl_FragCoord.y/ratio_y - int(gl_FragCoord.y / ratio_y)));
+		   interpolation(y/ratio_y - j));
 }
 
 
 
 void main() {
+
+    float x_movement = -normalize(view_dir).x;
+    float z_movement = normalize(view_dir).z;
+
     ratio_x = ratio[0];
     ratio_y = ratio[1];
+
+    x = gl_FragCoord.x + (x_movement * 0.1f * time) * fmax * ratio[0];
+    y = gl_FragCoord.y + (z_movement * 0.1f * time) * fmax * ratio[1];
 
     float n_total = 0.0f;                   // Sum of the noise contributions for distinct freq
     offset = 0;
     int iteration;
     for(f=fmax+1, iteration=1; f >= grid_dim+1; f/=2, iteration++) {
 
-	i = int(gl_FragCoord.x / ratio_x);
-	j = int(gl_FragCoord.y / ratio_y);
+	i = (x >= 0)? int(x / ratio_x) : int(x / ratio_x) - 1;
+	j = (y >= 0)? int(y / ratio_y) : int(y / ratio_y) - 1;
 
 	grad();
 	diff();

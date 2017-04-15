@@ -26,6 +26,8 @@ mat4 quad_model_matrix;
 float y_last;
 
 vec3 light_pos;
+vec3 eye;
+vec3 target;
 
 FrameBuffer fb_noise;
 
@@ -33,6 +35,14 @@ Grid grid;
 
 Trackball trackball;
 Heightmap noise;
+
+mat4 LookAt(vec3 eye, vec3 center, vec3 up);
+vec2 TransformScreenCoords(GLFWwindow* window, int x, int y);
+void MouseButton(GLFWwindow* window, int button, int action, int mod);
+void MousePos(GLFWwindow* window, double x, double y);
+void SetupProjection(GLFWwindow* window, int width, int height);
+void ErrorCallback(int error, const char* description);
+void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 void Init() {
     // Sets background color
@@ -45,10 +55,6 @@ void Init() {
     noise.Init(noise_texture_resolution_x,
 	       noise_texture_resolution_y);
 
-    fb_noise.Bind();
-    noise.Draw();
-    fb_noise.Unbind();
-
     // Light source position
     vec3 light_pos = vec3(-1.0f, 1.0f, 1.0f);
     
@@ -58,8 +64,11 @@ void Init() {
     glEnable(GL_DEPTH_TEST);
     
     // Using the trackball requires a view matrix that looks straight down the -z axis.
-    // Otherwise LookAt may be used.    
-    view_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, -4.0f));
+    // Otherwise LookAt may be used.
+    eye = vec3(0.0f, 1.0f, 3.0f);
+    target = vec3(0.0f);
+    view_matrix = LookAt(eye, target, vec3(0.0f, 1.0f, 0.0f));
+    //view_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, -4.0f));
     trackball_matrix = IDENTITY_MATRIX;
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, 0.0f));
 }
@@ -68,19 +77,12 @@ void Init() {
 void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     fb_noise.Bind();
-    noise.Draw();
+    noise.Draw(eye - target);
     fb_noise.Unbind();
     // Draw a quad on the ground.
     glViewport(0, 0, window_width, window_height);
     grid.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
 }
-
-vec2 TransformScreenCoords(GLFWwindow* window, int x, int y);
-void MouseButton(GLFWwindow* window, int button, int action, int mod);
-void MousePos(GLFWwindow* window, double x, double y);
-void SetupProjection(GLFWwindow* window, int width, int height);
-void ErrorCallback(int error, const char* description);
-void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 
 int main(int argc, char *argv[]) {
@@ -263,22 +265,27 @@ void ErrorCallback(int error, const char* description) {
 }
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, GL_TRUE);
-    } 
-    cout << "ici" << endl;
-    if (action == GLFW_REPEAT || action == GLFW_PRESS) {
-        switch(key) {
-            case 'P':
-                cout << "Augmenting parameter" << endl;
-                noise.mod(0.1f);
-                break;
-            case 'L':
-                cout << "Decreasing parameter" << endl;
-                noise.mod(-0.1f);
-                break;
-            default:
-                break;
-        }
+    switch(key) {
+    case GLFW_KEY_ESCAPE:
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+	    glfwSetWindowShouldClose(window, GL_TRUE);
+	}
+	
+    case 'P':
+	if (action == GLFW_REPEAT || action == GLFW_PRESS) {
+	    cout << "Augmenting parameter" << endl;
+	    noise.mod(0.1f);
+	    break;
+	}
+	
+    case 'L':
+	if (action == GLFW_REPEAT || action == GLFW_PRESS) {
+	    cout << "Decreasing parameter" << endl;
+	    noise.mod(-0.1f);
+	    break;
+	}
+	
+    default:
+	break;
     }
 }

@@ -79,6 +79,9 @@ public:
 			 (GLfloat*)glm::value_ptr(values[0]));
 	}
 
+	GLint nb_grad_id = glGetUniformLocation(program_id_, "nb_gradients");
+	glUniform1i(nb_grad_id, NB_GRADIENTS);
+
 	// Data for the shader
 	{
 	    GLint grid_dim_id_ = glGetUniformLocation(program_id_, "grid_dim");
@@ -91,15 +94,18 @@ public:
         
         // Passing parameter
         GLint param = glGetUniformLocation(program_id_, "param");
-    	    glUniform1f(param, p+modif);
+	glUniform1f(param, p+modif);
 	}
     }
 
-    void Draw() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    void Draw(glm::vec3 view_dir) {
 	
 	glUseProgram(program_id_);
 	glBindVertexArray(vertex_array_id_);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+	glUniform1f(glGetUniformLocation(program_id_, "time"), glfwGetTime());
+	glUniform3f(glGetUniformLocation(program_id_, "view_dir"), view_dir.x, 0.0f, view_dir.z);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
@@ -114,7 +120,7 @@ public:
         modif = modif + change;
         cout << modif << endl;
         GLint param = glGetUniformLocation(program_id_, "param");
-    	    glUniform1f(param, p+modif);
+	glUniform1f(param, p+modif);
         glBindVertexArray(0);
         glUseProgram(0);
 
