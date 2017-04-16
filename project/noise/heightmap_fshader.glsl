@@ -6,7 +6,7 @@ uniform float grid_dim;
 uniform vec2 ratio;
 
 uniform float time;
-uniform vec3 view_dir;
+uniform vec2 movement;
 
 uniform int fmax;
 
@@ -97,14 +97,11 @@ float perlin_noise() {
 
 void main() {
 
-    float x_movement = -normalize(view_dir).x;
-    float z_movement = normalize(view_dir).z;
-
     ratio_x = ratio[0];
     ratio_y = ratio[1];
 
-    x = gl_FragCoord.x + (x_movement * 0.1f * time) * fmax * ratio[0];
-    y = gl_FragCoord.y + (z_movement * 0.1f * time) * fmax * ratio[1];
+    x = gl_FragCoord.x + movement.x * 100.0f;
+    y = gl_FragCoord.y + movement.y * 100.0f;
 
     float n_total = 0.0f;                   // Sum of the noise contributions for distinct freq
     offset = 0;

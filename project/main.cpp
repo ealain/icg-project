@@ -29,6 +29,9 @@ vec3 light_pos;
 vec3 eye;
 vec3 target;
 
+vec3 movement;
+bool mv_forward, mv_backward, mv_right, mv_left;
+
 FrameBuffer fb_noise;
 
 Grid grid;
@@ -57,12 +60,12 @@ void Init() {
 
     // Light source position
     vec3 light_pos = vec3(-1.0f, 1.0f, 1.0f);
-    
+
     grid.Init(128, noise_texture_id, light_pos);
 
     // Enable depth test.
     glEnable(GL_DEPTH_TEST);
-    
+
     // Using the trackball requires a view matrix that looks straight down the -z axis.
     // Otherwise LookAt may be used.
     eye = vec3(0.0f, 1.0f, 3.0f);
@@ -70,18 +73,41 @@ void Init() {
     view_matrix = LookAt(eye, target, vec3(0.0f, 1.0f, 0.0f));
     //view_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, -4.0f));
     trackball_matrix = IDENTITY_MATRIX;
-    quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, 0.0f));
+
+    movement = vec3(0.0f, 0.0f, glfwGetTime());
+    mv_forward = false;
+    mv_backward = false;
+    mv_right = false;
+    mv_left = false;
 }
 
 // Gets called for every frame.
 void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     fb_noise.Bind();
-    noise.Draw(eye - target);
+    float delta = glfwGetTime() - movement.z;
+    if(mv_forward)
+	movement += vec3(-(target-eye).x * delta, -(target-eye).z * delta, 0.0f);
+    if(mv_backward)
+	movement += vec3((target-eye).x * delta, (target-eye).z * delta, 0.0f);
+    if(mv_right)
+	movement += vec3(-cross(vec3(0.0f, 1.0f, 0.0f),
+			       vec3((target-eye).x, 0.0f, (target-eye).z)).x * delta,
+			 -cross(vec3(0.0f, 1.0f, 0.0f),
+			       vec3((target-eye).x, 0.0f, (target-eye).z)).z * delta,
+			 0.0f);
+    if(mv_left)
+	movement += vec3(cross(vec3(0.0f, 1.0f, 0.0f),
+			       vec3((target-eye).x, 0.0f, (target-eye).z)).x * delta,
+			 cross(vec3(0.0f, 1.0f, 0.0f),
+			       vec3((target-eye).x, 0.0f, (target-eye).z)).z * delta,
+			 0.0f);
+    movement += vec3(0.0f, 0.0f, delta);
+    noise.Draw(movement);
     fb_noise.Unbind();
     // Draw a quad on the ground.
     glViewport(0, 0, window_width, window_height);
-    grid.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
+    grid.Draw(trackball_matrix, view_matrix, projection_matrix);
 }
 
 
@@ -270,21 +296,62 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 	    glfwSetWindowShouldClose(window, GL_TRUE);
 	}
-	
+	break;
+
     case 'P':
 	if (action == GLFW_REPEAT || action == GLFW_PRESS) {
 	    cout << "Augmenting parameter" << endl;
 	    noise.mod(0.1f);
-	    break;
 	}
-	
+	break;
+
     case 'L':
 	if (action == GLFW_REPEAT || action == GLFW_PRESS) {
 	    cout << "Decreasing parameter" << endl;
 	    noise.mod(-0.1f);
-	    break;
 	}
-	
+	break;
+
+    case 'W':
+	if (action == GLFW_PRESS) {
+	    cout << "Forward" << endl;
+	    mv_forward = true;
+	}
+	else if (action == GLFW_RELEASE) {
+	    mv_forward = false;
+	}
+	break;
+
+    case 'S':
+	if (action == GLFW_PRESS) {
+	    cout << "Backward" << endl;
+	    mv_backward = true;
+	}
+	else if (action == GLFW_RELEASE) {
+	    mv_backward = false;
+	}
+	break;
+
+    case 'A':
+	if (action == GLFW_PRESS) {
+	    cout << "Left" << endl;
+	    mv_left = true;
+	}
+	else if (action == GLFW_RELEASE) {
+	    mv_left = false;
+	}
+	break;
+
+    case 'D':
+	if (action == GLFW_PRESS) {
+	    cout << "Right" << endl;
+	    mv_right = true;
+	}
+	else if (action == GLFW_RELEASE) {
+	    mv_right = false;
+	}
+	break;
+
     default:
 	break;
     }
