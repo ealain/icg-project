@@ -13,7 +13,7 @@ uniform int fmax;
 uniform float param;
 
 
-uniform vec2 grad_values[53];  // NB_GRADIENTS is defined in heightmap.h
+uniform vec2 grad_values[100];  // NB_GRADIENTS is defined in heightmap.h
 uniform int nb_gradients;
 
 int f;                          // Frequency of the noise in the map
@@ -120,7 +120,7 @@ void main() {
 	ratio_y *= float(f-1) / (f/2 -1);
     }
 
-    color = vec3(n_total / (0.25f*pow(param, iteration-1)));
+    color = vec3(n_total / pow(param, iteration-1));
 
     // Debugging...
     // color = vec3(int(1.2f));

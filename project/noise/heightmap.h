@@ -1,8 +1,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
-#define GRID_DIM 3           // Size of the grid (unit: nb of stripes)
-#define HIGH_FREQUENCY 255   // Size of the grid (unit: nb of stripes)
-#define NB_GRADIENTS 53      // Prime number
+#define GRID_DIM 7           // Size of the grid (unit: nb of stripes)
+#define HIGH_FREQUENCY 511   // Size of the grid (unit: nb of stripes)
+#define NB_GRADIENTS 100
 
 // Vertex positions of the two triangles for texture quad
 const GLfloat triangle_vertex_positions[] = {-1.0f, -1.0f, 0.0f,

@@ -10,37 +10,37 @@
 #include "grid/grid.h"
 
 #include "framebuffer.h"
-#include "trackball.h"
+#include "camera.h"
 #include "noise/heightmap.h"
 
 using namespace glm;
+
+GLFWwindow* window;
 
 int window_width = 800;
 int window_height = 600;
 
 mat4 projection_matrix;
 mat4 view_matrix;
-mat4 trackball_matrix;
-mat4 old_trackball_matrix;
 mat4 quad_model_matrix;
 float y_last;
 
 vec3 light_pos;
-vec3 eye;
-vec3 target;
+
+Camera camera;
+bool dragging;
+bool zooming;
 
 vec3 movement;
 bool mv_forward, mv_backward, mv_right, mv_left;
 
 FrameBuffer fb_noise;
+Heightmap noise;
 
 Grid grid;
 
-Trackball trackball;
-Heightmap noise;
 
-mat4 LookAt(vec3 eye, vec3 center, vec3 up);
-vec2 TransformScreenCoords(GLFWwindow* window, int x, int y);
+vec2 TransformScreenCoords(int x, int y);
 void MouseButton(GLFWwindow* window, int button, int action, int mod);
 void MousePos(GLFWwindow* window, double x, double y);
 void SetupProjection(GLFWwindow* window, int width, int height);
@@ -61,53 +61,67 @@ void Init() {
     // Light source position
     vec3 light_pos = vec3(-1.0f, 1.0f, 1.0f);
 
-    grid.Init(128, noise_texture_id, light_pos);
+    grid.Init(512, noise_texture_id, light_pos);
 
     // Enable depth test.
     glEnable(GL_DEPTH_TEST);
 
-    // Using the trackball requires a view matrix that looks straight down the -z axis.
-    // Otherwise LookAt may be used.
-    eye = vec3(0.0f, 1.0f, 3.0f);
-    target = vec3(0.0f);
-    view_matrix = LookAt(eye, target, vec3(0.0f, 1.0f, 0.0f));
-    //view_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, -4.0f));
-    trackball_matrix = IDENTITY_MATRIX;
+    view_matrix = camera.getViewMatrix();
 
     movement = vec3(0.0f, 0.0f, glfwGetTime());
     mv_forward = false;
     mv_backward = false;
     mv_right = false;
     mv_left = false;
+
+    dragging = false;
+    zooming = false;
 }
 
 // Gets called for every frame.
 void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     fb_noise.Bind();
     float delta = glfwGetTime() - movement.z;
+    vec3 target = camera.getTarget();
+    vec3 eye = camera.getEye();
     if(mv_forward)
-	movement += vec3(-(target-eye).x * delta, -(target-eye).z * delta, 0.0f);
+	movement += vec3((target-eye).x * delta, -(target-eye).z * delta, 0.0f);
     if(mv_backward)
-	movement += vec3((target-eye).x * delta, (target-eye).z * delta, 0.0f);
+	movement += vec3(-(target-eye).x * delta, (target-eye).z * delta, 0.0f);
     if(mv_right)
 	movement += vec3(-cross(vec3(0.0f, 1.0f, 0.0f),
-			       vec3((target-eye).x, 0.0f, (target-eye).z)).x * delta,
-			 -cross(vec3(0.0f, 1.0f, 0.0f),
+				vec3((target-eye).x, 0.0f, (target-eye).z)).x * delta,
+			 cross(vec3(0.0f, 1.0f, 0.0f),
 			       vec3((target-eye).x, 0.0f, (target-eye).z)).z * delta,
 			 0.0f);
     if(mv_left)
 	movement += vec3(cross(vec3(0.0f, 1.0f, 0.0f),
 			       vec3((target-eye).x, 0.0f, (target-eye).z)).x * delta,
-			 cross(vec3(0.0f, 1.0f, 0.0f),
-			       vec3((target-eye).x, 0.0f, (target-eye).z)).z * delta,
+			 -cross(vec3(0.0f, 1.0f, 0.0f),
+				vec3((target-eye).x, 0.0f, (target-eye).z)).z * delta,
 			 0.0f);
     movement += vec3(0.0f, 0.0f, delta);
     noise.Draw(movement);
     fb_noise.Unbind();
+
+
+    // Change view direction and / or zoom
+    if(dragging || zooming) {
+	double xpos, ypos;
+	glfwGetCursorPos(window, &xpos, &ypos);
+	vec2 p = TransformScreenCoords(xpos, ypos);
+	if(dragging)
+	    camera.Drag(p.x, p.y);
+	if(zooming)
+	    camera.Zoom(p.y);
+	view_matrix = camera.getViewMatrix();
+    }
+
     // Draw a quad on the ground.
     glViewport(0, 0, window_width, window_height);
-    grid.Draw(trackball_matrix, view_matrix, projection_matrix);
+    grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
 }
 
 
@@ -130,8 +144,8 @@ int main(int argc, char *argv[]) {
     // Attempt to open the window: fails if required version unavailable
     // Note some Intel GPUs do not support OpenGL 3.2
     // Note update the driver of your graphic card
-    GLFWwindow* window = glfwCreateWindow(window_width, window_height,
-					  "Terrain", NULL, NULL);
+    window = glfwCreateWindow(window_width, window_height,
+			      "Terrain", NULL, NULL);
     if(!window) {
 	glfwTerminate();
 	return EXIT_FAILURE;
@@ -207,25 +221,8 @@ mat4 PerspectiveProjection(float fovy, float aspect, float near, float far) {
     return projection;
 }
 
-mat4 LookAt(vec3 eye, vec3 center, vec3 up) {
-    // Function that converts from world coordinates into camera coordinates.
-
-    vec3 z_cam = normalize(eye - center);
-    vec3 x_cam = normalize(cross(up, z_cam));
-    vec3 y_cam = cross(z_cam, x_cam);
-
-    mat3 R(x_cam, y_cam, z_cam);
-    R = transpose(R);
-
-    mat4 look_at(vec4(R[0], 0.0f),
-		 vec4(R[1], 0.0f),
-		 vec4(R[2], 0.0f),
-		 vec4(-R * (eye), 1.0f));
-    return look_at;
-}
-
 // Transforms glfw screen coordinates into normalized OpenGL coordinates.
-vec2 TransformScreenCoords(GLFWwindow* window, int x, int y) {
+vec2 TransformScreenCoords(int x, int y) {
     // The framebuffer and the window doesn't necessarily have the same size
     // i.e. hidpi screens. so we need to get the correct one
     int width;
@@ -236,40 +233,19 @@ vec2 TransformScreenCoords(GLFWwindow* window, int x, int y) {
 }
 
 void MouseButton(GLFWwindow* window, int button, int action, int mod) {
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+    if ((button == GLFW_MOUSE_BUTTON_LEFT || button == GLFW_MOUSE_BUTTON_RIGHT)
+	&& action == GLFW_PRESS) {
 	double x_i, y_i;
 	glfwGetCursorPos(window, &x_i, &y_i);
-	vec2 p = TransformScreenCoords(window, x_i, y_i);
-	trackball.BeingDrag(p.x, p.y);
-	old_trackball_matrix = trackball_matrix;
+	vec2 p = TransformScreenCoords(x_i, y_i);
+	camera.BeginDrag(p.x, p.y);
     }
-    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-	double x_i, y_i;
-	glfwGetCursorPos(window, &x_i, &y_i);
-	vec2 p = TransformScreenCoords(window, x_i, y_i);
-	y_last = p.y;
-    }
+
+    dragging = (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS);
+    zooming = (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS);
 }
 
 void MousePos(GLFWwindow* window, double x, double y) {
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-	vec2 p = TransformScreenCoords(window, x, y);
-	// Calculate 'trackball_matrix' given the return value of
-	// trackball.Drag(...) and the value stored in 'old_trackball_matrix'.
-	// See also the mouse_button(...) function.
-	trackball_matrix =  trackball.Drag(p.x, p.y, old_trackball_matrix) *old_trackball_matrix;
-    }
-
-    // zoom
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-	// Implement zooming. When the right mouse button is pressed,
-	// moving the mouse cursor up and down (along the screen's y axis)
-	// should zoom out and it. For that you have to update the current
-	// 'view_matrix' with a translation along the z axis.
-	vec2 p = TransformScreenCoords(window, x, y);
-	view_matrix[3][2] += 5 * (p.y - y_last);
-	y_last = p.y;
-    }
 }
 
 // Gets called when the windows/framebuffer is resized.
