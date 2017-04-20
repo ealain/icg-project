@@ -50,13 +50,16 @@ public:
 	vec3 current_pos = vec3(x, y, 0.0f);
 	ProjectOntoSurface(current_pos);
 
-	if(length(cross(current_pos, anchor_pos_)) != 0.0f) {
-	    vec4 r = rotate(rotation_,
-			    -angle(current_pos, anchor_pos_)
-			    * (float)(glfwGetTime() - target_.w),
-			    cross(current_pos, anchor_pos_)) * target_;
+	vec3 rotation_vector = -cross(normalize(anchor_pos_), normalize(current_pos));
 
-	    target_ = vec4(r.x, r.y, r.z, glfwGetTime());
+	if(length(rotation_vector) != 0.0f) {
+	    mat4 rot_mat = rotate(rotation_,
+				  -angle(normalize(anchor_pos_), normalize(current_pos))
+				  * (float)(glfwGetTime() - target_.w),
+				  rotation_vector);
+
+	    target_ =  rot_mat * target_;
+	    target_.w = glfwGetTime();
 	}
 
 	return;
