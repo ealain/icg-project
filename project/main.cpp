@@ -121,7 +121,7 @@ void Display() {
 
     // Draw a quad on the ground.
     glViewport(0, 0, window_width, window_height);
-    grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+    grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, movement);
 }
 
 
