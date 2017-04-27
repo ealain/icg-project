@@ -84,23 +84,22 @@ void Display() {
 
     fb_noise.Bind();
     float delta = glfwGetTime() - movement.z;
-    vec3 target = camera.getTarget();
-    vec3 eye = camera.getEye();
+    vec3 view_dir = camera.getViewDirection();
     if(mv_forward)
-	movement += vec3((target-eye).x * delta, -(target-eye).z * delta, 0.0f);
+	movement += vec3(view_dir.x * delta, -view_dir.z * delta, 0.0f);
     if(mv_backward)
-	movement += vec3(-(target-eye).x * delta, (target-eye).z * delta, 0.0f);
+	movement += vec3(-view_dir.x * delta, view_dir.z * delta, 0.0f);
     if(mv_right)
 	movement += vec3(-cross(vec3(0.0f, 1.0f, 0.0f),
-				vec3((target-eye).x, 0.0f, (target-eye).z)).x * delta,
+				vec3(view_dir.x, 0.0f, view_dir.z)).x * delta,
 			 cross(vec3(0.0f, 1.0f, 0.0f),
-			       vec3((target-eye).x, 0.0f, (target-eye).z)).z * delta,
+			       vec3(view_dir.x, 0.0f, view_dir.z)).z * delta,
 			 0.0f);
     if(mv_left)
 	movement += vec3(cross(vec3(0.0f, 1.0f, 0.0f),
-			       vec3((target-eye).x, 0.0f, (target-eye).z)).x * delta,
+			       vec3(view_dir.x, 0.0f, view_dir.z)).x * delta,
 			 -cross(vec3(0.0f, 1.0f, 0.0f),
-				vec3((target-eye).x, 0.0f, (target-eye).z)).z * delta,
+				vec3(view_dir.x, 0.0f, view_dir.z)).z * delta,
 			 0.0f);
     movement += vec3(0.0f, 0.0f, delta);
     noise.Draw(movement);
