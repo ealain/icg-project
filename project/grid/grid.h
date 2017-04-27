@@ -119,13 +119,13 @@ public:
 	glUniform3f(light_pos_id, (GLfloat)light_pos.x, (GLfloat)light_pos.y, (GLfloat)light_pos.z);
 
 	// Bind Grass Texture
-    _grassTexId = gen2DTexture("Texture/grass2.jpg", GL_RGB);
+    _grassTexId = gen2DTexture("grass.jpg", GL_RGB);
      // Bind Snow Texture
-    _snowTexId = gen2DTexture("Texture/snow.jpg", GL_RGB);
+    _snowTexId = gen2DTexture("snow.jpg", GL_RGB);
      // Bind Sand Texture
-    _sandTexId = gen2DTexture("Texture/sand.jpg", GL_RGB);
+    _sandTexId = gen2DTexture("sand.jpg", GL_RGB);
      // Bind Rock Texture
-    _rockTexId = gen2DTexture("Texture/rock.jpg", GL_RGB);
+    _rockTexId = gen2DTexture("rock.jpg", GL_RGB);
 
 		
 

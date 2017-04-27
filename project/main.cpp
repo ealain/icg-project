@@ -103,6 +103,7 @@ void Display() {
 				vec3((target-eye).x, 0.0f, (target-eye).z)).z * delta,
 			 0.0f);
     movement += vec3(0.0f, 0.0f, delta);
+    cout << movement.y << endl;
     noise.Draw(movement);
     fb_noise.Unbind();
 
