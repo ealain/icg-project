@@ -178,6 +178,9 @@ public:
 
     //Set Offset position
     glUniform3f(glGetUniformLocation(program_id_, "movement"), movement.x, movement.y, movement.z);
+    //Seet time
+    glUniform1f(glGetUniformLocation(program_id_, "time"), glfwGetTime());
+
 
 
 
