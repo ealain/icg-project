@@ -1,4 +1,3 @@
-#pragma once
 #include "icg_helper.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -57,7 +56,7 @@ public:
     }
     
     void invY() {
-        eye_.y = -(eye_.y)
+        eye_.y = -(eye_.y);
     }
 
     vec3 getViewDirection() {return view_dir_;}

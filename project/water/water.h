@@ -1,10 +1,21 @@
 #include <glm/gtc/type_ptr.hpp>
 
-class Heightmap {
-private:
+class Water {
+private:    
+    int resolution_x_, resolution_y_;  // The resolution is the "window_width" of the texture
+    int grid_dim_;                     // The grid_dim determines the lower frequency of the noise
+
+    GLuint texture_water_;
+    GLuint vertex_array_id_;
+    GLuint vertex_buffer_object_position_;
+    GLuint vertex_buffer_object_index_;
+    GLuint program_id_;
+    GLuint num_indices_;
+    GLuint MVP_id_;
     
 public:
-    void Init(int resolution_x, int resolution_y) {
+    void Init(int resolution_x, int resolution_y, GLuint texture_water) {
+        texture_water_ = texture_water;
         resolution_x_ = resolution_x;
     	resolution_y_ = resolution_y;
         
@@ -68,6 +79,12 @@ public:
             glVertexAttribPointer(loc_position, 2, GL_FLOAT, DONT_NORMALIZE,
                 ZERO_STRIDE, ZERO_BUFFER_OFFSET);
         }
+        
+        // Setup uniform
+        MVP_id_ = glGetUniformLocation(program_id_, "MVP");
+        
+        GLuint loc_tex_water = glGetUniformLocation(program_id_, "water_tex");
+        glUniform1i(loc_tex_water, 0);
 
         glBindVertexArray(0);
         glUseProgram(0);
@@ -80,16 +97,26 @@ public:
         glDeleteBuffers(1, &vertex_buffer_object_index_);
         glDeleteVertexArrays(1, &vertex_array_id_);
         glDeleteProgram(program_id_);
-        glDeleteTextures(1, &texture_id_);
+        glDeleteTextures(1, &texture_water_);
     }
     
-    void Draw() {
+    void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
+	      const glm::mat4 &view = IDENTITY_MATRIX,
+	      const glm::mat4 &projection = IDENTITY_MATRIX) {
         glUseProgram(program_id_);
-        glBindVertexArray(vertex_array_id_):
+        glBindVertexArray(vertex_array_id_);
         
+        // bind textures
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture_water_);
+        
+        // Setup MVP
+        glm::mat4 MVP = projection*view*model;
+        glUniformMatrix4fv(MVP_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(MVP));
+
         glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
         
         glBindVertexArray(0);
         glUseProgram(0);
     }
-}
+};

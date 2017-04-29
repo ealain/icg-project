@@ -12,7 +12,8 @@ copy_files_once(${TEXTURES})
 # you build (ie, you want the shaders there)
 file(GLOB SHADERS
   grid/*.glsl
-  noise/*.glsl)
+  noise/*.glsl
+  water/*.glsl)
 deploy_shaders_to_build_dir(${SHADERS})
 
 add_executable(${EXERCISENAME} ${SOURCES} ${HEADERS} ${SHADERS})

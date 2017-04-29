@@ -12,6 +12,7 @@
 #include "framebuffer.h"
 #include "camera.h"
 #include "noise/heightmap.h"
+#include "water/water.h"
 
 using namespace glm;
 
@@ -35,9 +36,11 @@ vec3 movement;
 bool mv_forward, mv_backward, mv_right, mv_left;
 
 FrameBuffer fb_noise;
+FrameBuffer fb_water;
 Heightmap noise;
 
 Grid grid;
+Water water;
 
 
 vec2 TransformScreenCoords(int x, int y);
@@ -54,9 +57,15 @@ void Init() {
     int noise_texture_resolution_x = 1024;
     int noise_texture_resolution_y = 1024;
     GLuint noise_texture_id = fb_noise.Init(noise_texture_resolution_x,
-					    noise_texture_resolution_y, true);
+        noise_texture_resolution_y, true);
     noise.Init(noise_texture_resolution_x,
-	       noise_texture_resolution_y);
+        noise_texture_resolution_y);
+           
+    GLuint water_texture_id = fb_water.Init(noise_texture_resolution_x, 
+        noise_texture_resolution_y, true);
+    water.Init(noise_texture_resolution_x, 
+        noise_texture_resolution_y, noise_texture_id);
+    
 
     // Light source position
     vec3 light_pos = vec3(-1.0f, 1.0f, 1.0f);
@@ -120,7 +129,8 @@ void Display() {
 
     // Draw a quad on the ground.
     glViewport(0, 0, window_width, window_height);
-    grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+    //grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+    water.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
 }
 
 
