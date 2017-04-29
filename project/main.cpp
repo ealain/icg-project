@@ -63,8 +63,8 @@ void Init() {
            
     GLuint water_texture_id = fb_water.Init(noise_texture_resolution_x, 
         noise_texture_resolution_y, true);
-    water.Init(noise_texture_resolution_x, 
-        noise_texture_resolution_y, noise_texture_id);
+    water.Init(512, noise_texture_resolution_x, 
+        noise_texture_resolution_y, water_texture_id);
     
 
     // Light source position
@@ -93,43 +93,57 @@ void Display() {
 
     fb_noise.Bind();
     float delta = glfwGetTime() - movement.z;
-    vec3 view_dir = camera.getViewDirection();
+        vec3 view_dir = camera.getViewDirection();
     if(mv_forward)
-	movement += vec3(view_dir.x * delta, -view_dir.z * delta, 0.0f);
+        movement += vec3(view_dir.x * delta, -view_dir.z * delta, 0.0f);
     if(mv_backward)
-	movement += vec3(-view_dir.x * delta, view_dir.z * delta, 0.0f);
+        movement += vec3(-view_dir.x * delta, view_dir.z * delta, 0.0f);
     if(mv_right)
-	movement += vec3(-cross(vec3(0.0f, 1.0f, 0.0f),
-				vec3(view_dir.x, 0.0f, view_dir.z)).x * delta,
-			 cross(vec3(0.0f, 1.0f, 0.0f),
-			       vec3(view_dir.x, 0.0f, view_dir.z)).z * delta,
-			 0.0f);
+        movement += vec3(-cross(vec3(0.0f, 1.0f, 0.0f),
+            vec3(view_dir.x, 0.0f, view_dir.z)).x * delta,
+            cross(vec3(0.0f, 1.0f, 0.0f),
+            vec3(view_dir.x, 0.0f, view_dir.z)).z * delta,
+            0.0f);
     if(mv_left)
-	movement += vec3(cross(vec3(0.0f, 1.0f, 0.0f),
-			       vec3(view_dir.x, 0.0f, view_dir.z)).x * delta,
-			 -cross(vec3(0.0f, 1.0f, 0.0f),
-				vec3(view_dir.x, 0.0f, view_dir.z)).z * delta,
-			 0.0f);
+        movement += vec3(cross(vec3(0.0f, 1.0f, 0.0f),
+            vec3(view_dir.x, 0.0f, view_dir.z)).x * delta,
+            -cross(vec3(0.0f, 1.0f, 0.0f),
+            vec3(view_dir.x, 0.0f, view_dir.z)).z * delta,
+            0.0f);
     movement += vec3(0.0f, 0.0f, delta);
+    
     noise.Draw(movement);
+    
     fb_noise.Unbind();
 
 
     // Change view direction and / or zoom
     if(dragging || zooming) {
-	double xpos, ypos;
-	glfwGetCursorPos(window, &xpos, &ypos);
-	vec2 p = TransformScreenCoords(xpos, ypos);
-	if(dragging)
-	    camera.Drag(p.x, p.y);
-	if(zooming)
-	    camera.Zoom(p.y);
-	view_matrix = camera.getViewMatrix();
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        vec2 p = TransformScreenCoords(xpos, ypos);
+        if(dragging)
+            camera.Drag(p.x, p.y);
+        if(zooming)
+            camera.Zoom(p.y);
+        view_matrix = camera.getViewMatrix();
     }
 
-    // Draw a quad on the ground.
     glViewport(0, 0, window_width, window_height);
     //grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+    
+    
+    fb_water.Bind();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glViewport(0, 0, window_width, window_height);
+
+    //camera.invY();
+    //view_matrix = camera.getViewMatrix();
+    grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+    fb_water.Unbind();
+    
+    
+    //camera.invY();
     water.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
 }
 

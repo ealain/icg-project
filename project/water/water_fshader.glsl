@@ -7,6 +7,6 @@ out vec3 color;
 uniform sampler2D water_tex;
 
 void main() {
-    //color = texture(water_tex, uv).rgb;
-    color = vec3(1.0, 0.0, 0.0);
+    color = texture(water_tex, uv).rgb;
+    //color = vec3(1.0, 0.0, 0.0);
 }

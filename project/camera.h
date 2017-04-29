@@ -23,7 +23,7 @@ public:
     Camera() : radius_(1.0f),
 	       anchor_pos_(vec3(0.0f)),
 	       rotation_(IDENTITY_MATRIX),
-	       view_dir_(vec3(0.0f, 0.0f, -1.0f)),
+	       view_dir_(vec3(0.0f, 0.0f, 2.0f)),
 	       eye_(vec3(0.0f, 0.2f, 0.0f)) {
 	projectOntoSphere(view_dir_);
 	rotation_ = lookAt(vec3(0.0f), view_dir_, vec3(0.0f, 1.0f, 0.0f));
@@ -57,13 +57,14 @@ public:
     
     void invY() {
         eye_.y = -(eye_.y);
+        view_dir_.y = -view_dir_.y;
     }
 
     vec3 getViewDirection() {return view_dir_;}
 
     mat4 getViewMatrix() {
-	mat4 rotation = lookAt(vec3(0.0f), view_dir_, vec3(0.0f, 1.0f, 0.0f));
-	mat4 translation = translate(IDENTITY_MATRIX, -eye_);
-	return rotation*translation;
+        mat4 rotation = lookAt(vec3(0.0f), view_dir_, vec3(0.0f, 1.0f, 0.0f));
+        mat4 translation = translate(IDENTITY_MATRIX, -eye_);
+        return rotation*translation;
     }
 };

@@ -14,10 +14,11 @@ private:
     GLuint MVP_id_;
     
 public:
-    void Init(int resolution_x, int resolution_y, GLuint texture_water) {
+    void Init(int grid_size, int resolution_x, int resolution_y, GLuint texture_water) {
         texture_water_ = texture_water;
         resolution_x_ = resolution_x;
     	resolution_y_ = resolution_y;
+        grid_dim_ = grid_size;
         
         // Compile the shaders
     	program_id_ = icg_helper::LoadShaders("water_vshader.glsl",
@@ -107,7 +108,7 @@ public:
         glBindVertexArray(vertex_array_id_);
         
         // bind textures
-        glActiveTexture(GL_TEXTURE0);
+        glActiveTexture(GL_TEXTURE0); // water_tex
         glBindTexture(GL_TEXTURE_2D, texture_water_);
         
         // Setup MVP
