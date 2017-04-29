@@ -55,6 +55,10 @@ public:
     void Zoom(float y) {
 	eye_ += (y - anchor_pos_.y) * 0.05f * (vec3(view_dir_));
     }
+    
+    void invY() {
+        eye_.y = -(eye_.y)
+    }
 
     vec3 getViewDirection() {return view_dir_;}
 
