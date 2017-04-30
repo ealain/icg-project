@@ -121,6 +121,7 @@ void main() {
     }
 
     color = vec3(n_total / pow(param, iteration-1));
+    //color = vec3(0.0, 0, 0);
 
     // Debugging...
     // color = vec3(int(1.2f));

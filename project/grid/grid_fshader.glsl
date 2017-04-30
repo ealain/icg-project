@@ -44,7 +44,7 @@ void main() {
         color = mix(white, color_tmp, 0.4);
     }
     else if(height < 0.0){
-        color = mix(darken_blue, blue, height);
+        color = mix(darken_blue, blue, height*100);
     }
     else {
         color = mix(mix(green, white, height / 0.6f), color_tmp, 0.5);

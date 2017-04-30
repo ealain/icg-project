@@ -20,21 +20,22 @@ private:
     vec3 eye_;
 
 public:
-    Camera() : radius_(1.0f),
-	       anchor_pos_(vec3(0.0f)),
-	       rotation_(IDENTITY_MATRIX),
-	       view_dir_(vec3(0.0f, 0.0f, 2.0f)),
-	       eye_(vec3(0.0f, 0.2f, 0.0f)) {
-	projectOntoSphere(view_dir_);
-	rotation_ = lookAt(vec3(0.0f), view_dir_, vec3(0.0f, 1.0f, 0.0f));
+    Camera() : 
+        radius_(1.0f),
+        anchor_pos_(vec3(0.0f)),
+        rotation_(IDENTITY_MATRIX),
+        view_dir_(vec3(0.0f, 0.0f, 1.0f)), // cam_look
+        eye_(vec3(0.0f, 0.2f, 0.0f)) { //cam_pos
+            projectOntoSphere(view_dir_);
+            rotation_ = lookAt(vec3(0.0f), view_dir_, vec3(0.0f, 1.0f, 0.0f));
     }
 
     // This function is called when the user presses the left mouse button down.
     // x, and y are in [-1, 1]. (-1, -1) is the bottom left corner while (1, 1)
     // is the top right corner.
     void BeginDrag(float x, float y) {
-	    last_time_ = glfwGetTime();
-	    anchor_pos_ = vec2(x, y);
+        last_time_ = glfwGetTime();
+        anchor_pos_ = vec2(x, y);
 	}
 
     void Drag(float x, float y) {
@@ -57,7 +58,9 @@ public:
     
     void invY() {
         eye_.y = -(eye_.y);
-        view_dir_.y = -view_dir_.y;
+        //view_dir_ = vec3(0,0,1);//lookAt(eye_, view_dir_, vec3(0.0f, 1.0f, 0.0f));
+        //view_dir_.y = -view_dir_.y;
+        rotation_ = lookAt(eye_, view_dir_, vec3(0.0f, 1.0f, 0.0f));
     }
 
     vec3 getViewDirection() {return view_dir_;}
