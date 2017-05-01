@@ -36,34 +36,41 @@ public:
     void BeginDrag(float x, float y) {
         last_time_ = glfwGetTime();
         anchor_pos_ = vec2(x, y);
-	}
+    }
 
     void Drag(float x, float y) {
-	vec2 current_pos = vec2(x, y);
-	vec3 translation_vector = vec3(current_pos - anchor_pos_, 0.0f);
+        vec2 current_pos = vec2(x, y);
+        vec3 translation_vector = vec3(current_pos - anchor_pos_, 0.0f);
 
-	translation_vector = vec3(inverse(rotation_) * vec4(translation_vector, 0.0f));
-	view_dir_ = view_dir_ + translation_vector  * float(glfwGetTime() - last_time_);
-	last_time_ = glfwGetTime();
-	projectOntoSphere(view_dir_);
+        translation_vector = vec3(inverse(rotation_) * vec4(translation_vector, 0.0f));
+        view_dir_ = view_dir_ + translation_vector  * float(glfwGetTime() - last_time_);
+        last_time_ = glfwGetTime();
+        projectOntoSphere(view_dir_);
 
-	rotation_ = lookAt(vec3(0.0f), view_dir_, vec3(0.0f, 1.0f, 0.0f));
+        rotation_ = lookAt(vec3(0.0f), view_dir_, vec3(0.0f, 1.0f, 0.0f));
 
-	return;
+        return;
     }
 
     void Zoom(float y) {
-	eye_ += (y - anchor_pos_.y) * 0.05f * (vec3(view_dir_));
+        eye_ += (y - anchor_pos_.y) * 0.05f * (vec3(view_dir_));
     }
     
-    void invY() {
+    mat4 invY() {
         eye_.y = -(eye_.y);
-        //view_dir_ = vec3(0,0,1);//lookAt(eye_, view_dir_, vec3(0.0f, 1.0f, 0.0f));
-        //view_dir_.y = -view_dir_.y;
-        rotation_ = lookAt(eye_, view_dir_, vec3(0.0f, 1.0f, 0.0f));
+        view_dir_.y = -view_dir_.y;
+        
+        mat4 rotation = lookAt(vec3(0.0f), view_dir_, vec3(0.0f, 1.0f, 0.0f));
+        mat4 translation = translate(IDENTITY_MATRIX, -eye_);
+        eye_.y = -(eye_.y);
+        view_dir_.y = -view_dir_.y;
+        return rotation*translation;
+
     }
 
-    vec3 getViewDirection() {return view_dir_;}
+    vec3 getViewDirection() {
+        return view_dir_;
+    }
 
     mat4 getViewMatrix() {
         mat4 rotation = lookAt(vec3(0.0f), view_dir_, vec3(0.0f, 1.0f, 0.0f));
