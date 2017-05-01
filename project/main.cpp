@@ -102,6 +102,7 @@ void Display() {
 				vec3(view_dir.x, 0.0f, view_dir.z)).z * delta,
 			 0.0f);
     movement += vec3(0.0f, 0.0f, delta);
+    cout << movement.y << endl;
     noise.Draw(movement);
     fb_noise.Unbind();
 
@@ -120,7 +121,7 @@ void Display() {
 
     // Draw a quad on the ground.
     glViewport(0, 0, window_width, window_height);
-    grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+    grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, movement);
 }
 
 
