@@ -65,7 +65,6 @@ public:
         eye_.y = -(eye_.y);
         view_dir_.y = -view_dir_.y;
         return rotation*translation;
-
     }
 
     vec3 getViewDirection() {

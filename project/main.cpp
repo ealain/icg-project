@@ -131,7 +131,7 @@ void Display() {
     view_matrix = camera.getViewMatrix();
 
     glViewport(0, 0, window_width, window_height);
-    grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+    //grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
     
     
     fb_water.Bind();
@@ -142,14 +142,17 @@ void Display() {
     //camera.invY();
     //view_matrix = camera.getViewMatrix();
     
-     
-    grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+    
+    //grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
     fb_water.Unbind();
     
     view_matrix = camera.getViewMatrix();
 
     //camera.invY();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     water.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+    
 }
 
 
