@@ -8,6 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "grid/grid.h"
+#include "sky/skybox.h"
 
 #include "framebuffer.h"
 #include "camera.h"
@@ -38,6 +39,7 @@ FrameBuffer fb_noise;
 Heightmap noise;
 
 Grid grid;
+Skybox sky;
 
 
 vec2 TransformScreenCoords(int x, int y);
@@ -62,6 +64,7 @@ void Init() {
     vec3 light_pos = vec3(-1.0f, 1.0f, 1.0f);
 
     grid.Init(512, noise_texture_id, light_pos);
+    sky.Init(2.0f);
 
     // Enable depth test.
     glEnable(GL_DEPTH_TEST);
@@ -122,6 +125,7 @@ void Display() {
     // Draw a quad on the ground.
     glViewport(0, 0, window_width, window_height);
     grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, movement);
+    sky.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
 }
 
 

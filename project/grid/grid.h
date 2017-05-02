@@ -22,30 +22,30 @@ private:
     GLuint _rockTexId;
 
     GLuint gen2DTexture(const char* imagePath, GLint format) {
-    GLuint textureId;
-    glGenTextures(1, &textureId);
-    glBindTexture(GL_TEXTURE_2D, textureId);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glGenerateMipmap(textureId);
+	GLuint textureId;
+	glGenTextures(1, &textureId);
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glGenerateMipmap(textureId);
 
-    int req_comp = (format == GL_RGB) ? STBI_rgb : STBI_rgb_alpha;
+	int req_comp = (format == GL_RGB) ? STBI_rgb : STBI_rgb_alpha;
 
-    int width, height, nb_comp;
-    unsigned char* image = stbi_load(imagePath, &width, &height, &nb_comp, req_comp);
-    if (image != NULL) {
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        stbi_image_free(image);
+	int width, height, nb_comp;
+	unsigned char* image = stbi_load(imagePath, &width, &height, &nb_comp, req_comp);
+	if (image != NULL) {
+	    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image);
+	    glGenerateMipmap(GL_TEXTURE_2D);
+	    stbi_image_free(image);
+	}
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	return textureId;
     }
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    return textureId;
-}
 
 public:
     void Init(int grid_size, GLuint texture_id, glm::vec3 light_pos = glm::vec3(0.0f, 0.0f, 1.0f)) {
@@ -113,21 +113,21 @@ public:
 
 	// Other uniforms
 	MVP_id_ = glGetUniformLocation(program_id_, "MVP");
-	MV_id_ = glGetUniformLocation(program_id_, "MV");	
+	MV_id_ = glGetUniformLocation(program_id_, "MV");
 
 	GLuint light_pos_id = glGetUniformLocation(program_id_, "MV");
 	glUniform3f(light_pos_id, (GLfloat)light_pos.x, (GLfloat)light_pos.y, (GLfloat)light_pos.z);
 
 	// Bind Grass Texture
-    _grassTexId = gen2DTexture("grass.jpg", GL_RGB);
-     // Bind Snow Texture
-    _snowTexId = gen2DTexture("snow.jpg", GL_RGB);
-     // Bind Sand Texture
-    _sandTexId = gen2DTexture("sand.jpg", GL_RGB);
-     // Bind Rock Texture
-    _rockTexId = gen2DTexture("rock.jpg", GL_RGB);
+	_grassTexId = gen2DTexture("textures/grass.jpg", GL_RGB);
+	// Bind Snow Texture
+	_snowTexId = gen2DTexture("textures/snow.jpg", GL_RGB);
+	// Bind Sand Texture
+	_sandTexId = gen2DTexture("textures/sand.jpg", GL_RGB);
+	// Bind Rock Texture
+	_rockTexId = gen2DTexture("textures/rock.jpg", GL_RGB);
 
-		
+
 
 	// To avoid the current object being polluted
 	glBindVertexArray(0);
@@ -142,10 +142,10 @@ public:
 	glDeleteVertexArrays(1, &vertex_array_id_);
 	glDeleteTextures(1, &texture_id_);
  	glDeleteTextures(1, &_snowTexId);
-    glDeleteTextures(1, &_sandTexId);
-    glDeleteTextures(1, &_grassTexId);
-    glDeleteTextures(1, &_rockTexId);
-    glDeleteProgram(program_id_);
+	glDeleteTextures(1, &_sandTexId);
+	glDeleteTextures(1, &_grassTexId);
+	glDeleteTextures(1, &_rockTexId);
+	glDeleteProgram(program_id_);
 
     }
 
@@ -160,26 +160,26 @@ public:
 	glBindTexture(GL_TEXTURE_2D, texture_id_);
 	glUniform1i(glGetUniformLocation(program_id_, "tex"), 0);
 	//Grass
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, _grassTexId);
-    glUniform1i(glGetUniformLocation(program_id_, "grassTex"), 1);
-    //Snow
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, _snowTexId);
-    glUniform1i(glGetUniformLocation(program_id_, "snowTex"), 2);
-    //Sand
-    glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, _sandTexId);
-    glUniform1i(glGetUniformLocation(program_id_, "sandTex"), 3);
-    //Rock
-    glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, _rockTexId);
-    glUniform1i(glGetUniformLocation(program_id_, "rockTex"), 4);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, _grassTexId);
+	glUniform1i(glGetUniformLocation(program_id_, "grassTex"), 1);
+	//Snow
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, _snowTexId);
+	glUniform1i(glGetUniformLocation(program_id_, "snowTex"), 2);
+	//Sand
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, _sandTexId);
+	glUniform1i(glGetUniformLocation(program_id_, "sandTex"), 3);
+	//Rock
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, _rockTexId);
+	glUniform1i(glGetUniformLocation(program_id_, "rockTex"), 4);
 
-    //Set Offset position
-    glUniform3f(glGetUniformLocation(program_id_, "movement"), movement.x, movement.y, movement.z);
-    //Seet time
-    glUniform1f(glGetUniformLocation(program_id_, "time"), glfwGetTime());
+	//Set Offset position
+	glUniform3f(glGetUniformLocation(program_id_, "movement"), movement.x, movement.y, movement.z);
+	//Seet time
+	glUniform1f(glGetUniformLocation(program_id_, "time"), glfwGetTime());
 
 
 
