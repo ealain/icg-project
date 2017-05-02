@@ -2,7 +2,6 @@
 
 #define M_PI 3.14159265359
 
-
 in vec2 uv;
 in vec3 pos_3d;
 in float height;
@@ -17,24 +16,24 @@ uniform sampler2D rockTex;
 uniform sampler2D sandTex;
 uniform sampler2D snowTex;
 uniform vec3 movement;
-uniform float time; 
+uniform float time;
 
 
 //Set the height of different element
 float waterHeight = 0.0;
-float sandHeight = waterHeight + 0.003;
+float sandHeight = waterHeight - 0.001f;
 float grassHeight = 0.07;
 float snowHeight = 0.09;
 float rockHeight =  snowHeight - 0.01;
 
 // Set up some useful color for interpolation
- vec3 blue = vec3(0.0,0.0,1.0);
- vec3 darken_blue = vec3(0.1, 0.1,0.6);
+vec3 blue = vec3(0.0,0.0,1.0);
+vec3 darken_blue = vec3(0.1, 0.1,0.6);
 
 //Return coef for mix function based on height
 float Interpol(float heightMin,float  heightMax){
     if (height > heightMax){
-        heightMax = height; 
+        heightMax = height;
     }
     float result = (height - heightMin)/(heightMax - heightMin);
     return result;
@@ -42,36 +41,48 @@ float Interpol(float heightMin,float  heightMax){
 
 
 float saison(float coef){
-    float tmp = cos(time/5); 
-    tmp = (tmp + 1)/2; 
+    float tmp = cos(time/5);
+    tmp = (tmp + 1)/2;
     if(tmp < 0){
-        tmp = 0; 
+        tmp = 0;
     }
-    return coef * tmp;  
+    return coef * tmp;
 }
 
-//Return coef for mix function based on sinus values
-float InterpolAngle(float angle){
-    float tmp = sin(angle);
-    float result;
-    if(tmp < sin(M_PI/8.0)){
-        result = 1;
-    } else {
-        result = 1.0 - (sin(angle) - sin(M_PI/8.0))/(sin(M_PI/6.0) - sin(M_PI/8.0));
-    }
-    return result;
+/* Interpolation functions. In any case :
+   0         ->         0
+   1         ->         1          */
+
+/*	  0.3       ->         0.01
+	  0.7       ->         0.99       */
+float sharp_interpolation(float t) {
+    return 1.000007 + (-2.098172*pow(10, -17) - 1.000007)/(1 + pow(t/0.5597708, 20.55199));
 }
+
+/*        0.7       ->         0.1
+	  0.9       ->         0.9        */
+float soft_shifted_interpolation(float t) {
+    return 1.023499 + (-4.982824*pow(10,-17) - 1.023499)/(1 + pow((t/0.7993572), 16.74859));
+}
+
+
+/*        0.2       ->         0.05
+	  0.8       ->         0.95       */
+float soft_interpolation(float t) {
+    return 1.040188 + (4.020405*pow(10, -18) - 1.040188)/(1 + pow((t/0.4341559), 3.85231));
+}
+
 
 
 void main() {
 
     float alpha = 1.0;
-    
-	//relative position
+
+    //relative position
     vec2 position = uv + vec2(movement.x,movement.y)/10.0f;
 
     // Setting ambient light
-    float ambient = 0.5f; 
+    float ambient = 0.6f;
     vec3 ambientLight = vec3(ambient);
 
     // Setting diffuse light
@@ -83,13 +94,11 @@ void main() {
     vec3 kd = vec3(0.557f, 0.33f, 0.204f);
     vec3 Ld = vec3(1.0f);
     vec3 diffureLight = vec3(Ld*kd*lambert);
-    vec3 light = ambientLight + diffureLight; 
+    vec3 light = ambientLight + diffureLight;
 
 
-    float angle = dot(normal, vec3(0.0f, 1.0f, 0.0f));
-    float sinAngle = sin(angle);
-    float random = int(1000*sin(angle)) % 100;
-    random = random/50000.0;  
+    float cosAngle = dot(normal, vec3(0.0f, 1.0f, 0.0f));
+
     vec3 texColor;
 
     //texture
@@ -99,39 +108,34 @@ void main() {
     vec3 rockTex = texture(rockTex, scale * position).rgb;
     vec3 snowTex = texture(snowTex, scale * position).rgb;
 
+    float delta_sand = 0.005;
+
+    sandHeight += delta_sand;
+
     //mixed texture
-    vec3 MixALtRockSnwoTex = mix(rockTex, snowTex,saison(Interpol(rockHeight, snowHeight)));
-    vec3 MixAngRockSnwoTex = mix(rockTex, snowTex,saison(InterpolAngle(angle)));
-    vec3 MixAngRockGrassTex = mix(grassTex, rockTex,InterpolAngle(angle));
-    vec3 MixALtGrassSandTex = mix(sandTex, grassTex,Interpol(sandHeight, grassHeight));
+    vec3 MixALtRockSnwoTex = mix(rockTex, snowTex, saison(Interpol(rockHeight, snowHeight)));
+    vec3 MixALtRockGrassTex = mix(grassTex, rockTex, Interpol(grassHeight, rockHeight));
+    vec3 MixAngRockGrassTex = mix(grassTex, rockTex, sharp_interpolation(1.0f-cosAngle));
+    vec3 MixSandTex = mix(MixAngRockGrassTex, sandTex, sharp_interpolation(1.0f-cosAngle));
+    // Texture for any transition between Sand and Grass
+    vec3 softSG = mix(sandTex, grassTex, soft_shifted_interpolation((height-waterHeight)/(delta_sand+waterHeight)));
 
     if(height < waterHeight){
         texColor = mix(darken_blue, blue, height);
     }
-    else if(height < sandHeight + random){
-    	// Texture of the sand
-        if(height < sandHeight){
-            texColor = sandTex; 
-        } else {
-            texColor = MixALtGrassSandTex;
-        }
-    } else if(height < grassHeight + random){
-    	// Texture of the grass
-        if(sinAngle < sin(M_PI/6.0)){
-            texColor = MixAngRockGrassTex; 
-        } else {
-        texColor = grassTex;
-        }
+    else if(height < grassHeight){
+	// Default case
+	texColor = MixAngRockGrassTex;
+	// If the pixel is sufficiently close to the water to receive sand
+	if(height < (delta_sand+waterHeight))
+	    if(cosAngle < 0.5f)
+		texColor = mix(softSG, MixAngRockGrassTex, sharp_interpolation((1.0f-cosAngle)+0.1f));
+	    else
+		texColor = mix(grassTex, softSG, sharp_interpolation(cosAngle-0.1));
     } else if(height < rockHeight){
-    	// Texture of the rock
-        texColor = rockTex;
+        texColor = MixALtRockGrassTex;
     } else {
-        if(sinAngle < sin(M_PI/6.0)){
-        	// Texture of the snow 
-            texColor = MixAngRockSnwoTex; 
-        } else {
-        texColor = MixALtRockSnwoTex;
-        }    
+	texColor = MixALtRockSnwoTex;
     }
 
     vec3 result = light * texColor;
