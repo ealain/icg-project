@@ -24,7 +24,7 @@ public:
         radius_(1.0f),
         anchor_pos_(vec3(0.0f)),
         rotation_(IDENTITY_MATRIX),
-        view_dir_(vec3(0.0f, 0.0f, 1.0f)), // cam_look
+        view_dir_(vec3(0.0f, 0.0f, -1.0f)), // cam_look
         eye_(vec3(0.0f, 0.2f, 0.0f)) { //cam_pos
             projectOntoSphere(view_dir_);
             rotation_ = lookAt(vec3(0.0f), view_dir_, vec3(0.0f, 1.0f, 0.0f));

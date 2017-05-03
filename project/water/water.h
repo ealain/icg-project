@@ -12,10 +12,12 @@ private:
     GLuint program_id_;
     GLuint num_indices_;
     GLuint MVP_id_;
+    GLuint texture_noise_;
     
 public:
-    void Init(int grid_size, int resolution_x, int resolution_y, GLuint texture_water) {
+    void Init(int grid_size, int resolution_x, int resolution_y, GLuint texture_water, GLuint texture_noise = -1) {
         texture_water_ = texture_water;
+        texture_noise_ = texture_noise;
         resolution_x_ = resolution_x;
     	resolution_y_ = resolution_y;
         grid_dim_ = grid_size;
@@ -27,15 +29,15 @@ public:
             exit(EXIT_FAILURE);
         }
 
-    	glUseProgram(program_id_);
+        glUseProgram(program_id_);
         
         // Setup vertex array;
-    	// Vertex arrays wrap buffers & attributes together
-    	glGenVertexArrays(ONE, &vertex_array_id_);
-    	glBindVertexArray(vertex_array_id_);
+        // Vertex arrays wrap buffers & attributes together
+        glGenVertexArrays(ONE, &vertex_array_id_);
+        glBindVertexArray(vertex_array_id_);
         
         // Vertex coordinates and indices
-    	{
+        {
             std::vector<GLfloat> vertices;
             std::vector<GLuint> indices;
             // Make a triangle grid with dimension grid_dim_xgrid_dim_.
@@ -86,6 +88,9 @@ public:
         
         GLuint loc_tex_water = glGetUniformLocation(program_id_, "water_tex");
         glUniform1i(loc_tex_water, 0);
+        
+        GLuint loc_tex_noise = glGetUniformLocation(program_id_, "noise_tex");
+        glUniform1i(loc_tex_noise, 1);
 
         glBindVertexArray(0);
         glUseProgram(0);
@@ -104,6 +109,7 @@ public:
     void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
 	      const glm::mat4 &view = IDENTITY_MATRIX,
 	      const glm::mat4 &projection = IDENTITY_MATRIX) {
+            
         glUseProgram(program_id_);
         glBindVertexArray(vertex_array_id_);
         
@@ -111,11 +117,19 @@ public:
         glActiveTexture(GL_TEXTURE0); // water_tex
         glBindTexture(GL_TEXTURE_2D, texture_water_);
         
+        glActiveTexture(GL_TEXTURE1); // noise_tex
+        glBindTexture(GL_TEXTURE_2D, texture_noise_);
+                
         // Setup MVP
         glm::mat4 MVP = projection*view*model;
         glUniformMatrix4fv(MVP_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(MVP));
 
+//        glEnable(GL_BLEND);
+//        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
+        
+        //glDisable(GL_BLEND);
         
         glBindVertexArray(0);
         glUseProgram(0);

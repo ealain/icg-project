@@ -64,7 +64,7 @@ void Init() {
     GLuint water_texture_id = fb_water.Init(noise_texture_resolution_x, 
         noise_texture_resolution_y, true, 3);
     water.Init(512, noise_texture_resolution_x, 
-        noise_texture_resolution_y, water_texture_id);
+        noise_texture_resolution_y, water_texture_id, noise_texture_id);
     
 
     // Light source position
@@ -129,14 +129,17 @@ void Display() {
         view_matrix = camera.getViewMatrix();
     }
     view_matrix = camera.getViewMatrix();
+    
+    //glViewport(0, 0, window_width, window_height);
+    
 
-    glViewport(0, 0, window_width, window_height);
-    grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+    //grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
     
     
     fb_water.Bind();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glViewport(0, 0, window_width, window_height);
+    //glViewport(0, 0, window_width, window_height);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
 
     view_matrix = camera.invY();
     //camera.invY();
@@ -148,9 +151,11 @@ void Display() {
     
     view_matrix = camera.getViewMatrix();
 
+    //glViewport(0, 0, window_width, window_height);
 
     water.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
     
+
 }
 
 
