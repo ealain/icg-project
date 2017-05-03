@@ -3,7 +3,7 @@
 out vec3 color;
 
 uniform float grid_dim;
-uniform vec2 ratio;
+uniform vec2 resolution;
 
 uniform float time;
 uniform vec2 movement;
@@ -20,8 +20,8 @@ int f;                          // Frequency of the noise in the map
                                 // If the checkerboard has 3 stripes, the frequency is 4
 int offset;                     // Offset to read the desired gradients in grad_values
 
-float ratio_x;                  // Number of pixels per stripe (resolution_x / 3)
-float ratio_y;                  // Number of pixels per stripe (resolution_y / 3)
+float ratio_x;                  // Number of pixels per stripe (resolution_x / (f-1))
+float ratio_y;                  // Number of pixels per stripe (resolution_y / (f-1))
 
 vec2 g0, g1, g2, g3;            // Cell's gradients
 vec2 d0, d1, d2, d3;            // Difference vectors from cell corners to current pixel
@@ -97,11 +97,11 @@ float perlin_noise() {
 
 void main() {
 
-    ratio_x = ratio[0];
-    ratio_y = ratio[1];
+    ratio_x = resolution.x / fmax;
+    ratio_y = resolution.y / fmax;
 
-    x = gl_FragCoord.x + movement.x * 100.0f;
-    y = gl_FragCoord.y + movement.y * 100.0f;
+    x = gl_FragCoord.x + movement.x * resolution.x;
+    y = gl_FragCoord.y + movement.y * resolution.y;
 
     float n_total = 0.0f;                   // Sum of the noise contributions for distinct freq
     offset = 0;

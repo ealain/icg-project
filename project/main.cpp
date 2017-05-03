@@ -12,7 +12,9 @@
 
 #include "framebuffer.h"
 #include "camera.h"
-#include "noise/heightmap.h"
+
+#include "noise/heightmap.hpp"
+#include "noise/movement.hpp"
 
 using namespace glm;
 
@@ -32,8 +34,7 @@ Camera camera;
 bool dragging;
 bool zooming;
 
-vec3 movement;
-bool mv_forward, mv_backward, mv_right, mv_left;
+char mv_forward, mv_right;
 
 FrameBuffer fb_noise;
 Heightmap noise;
@@ -48,6 +49,7 @@ void MousePos(GLFWwindow* window, double x, double y);
 void SetupProjection(GLFWwindow* window, int width, int height);
 void ErrorCallback(int error, const char* description);
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
 
 void Init() {
     // Sets background color
@@ -71,11 +73,8 @@ void Init() {
 
     view_matrix = camera.getViewMatrix();
 
-    movement = vec3(0.0f, 0.0f, glfwGetTime());
-    mv_forward = false;
-    mv_backward = false;
-    mv_right = false;
-    mv_left = false;
+    mv_forward = 0;
+    mv_right = 0;
 
     dragging = false;
     zooming = false;
@@ -86,27 +85,9 @@ void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     fb_noise.Bind();
-    float delta = glfwGetTime() - movement.z;
-    vec3 view_dir = camera.getViewDirection();
-    if(mv_forward)
-	movement += vec3(view_dir.x * delta, -view_dir.z * delta, 0.0f);
-    if(mv_backward)
-	movement += vec3(-view_dir.x * delta, view_dir.z * delta, 0.0f);
-    if(mv_right)
-	movement += vec3(-cross(vec3(0.0f, 1.0f, 0.0f),
-				vec3(view_dir.x, 0.0f, view_dir.z)).x * delta,
-			 cross(vec3(0.0f, 1.0f, 0.0f),
-			       vec3(view_dir.x, 0.0f, view_dir.z)).z * delta,
-			 0.0f);
-    if(mv_left)
-	movement += vec3(cross(vec3(0.0f, 1.0f, 0.0f),
-			       vec3(view_dir.x, 0.0f, view_dir.z)).x * delta,
-			 -cross(vec3(0.0f, 1.0f, 0.0f),
-				vec3(view_dir.x, 0.0f, view_dir.z)).z * delta,
-			 0.0f);
-    movement += vec3(0.0f, 0.0f, delta);
+    vec2 movement_offset = movement(camera.getViewDirection(), mv_right, mv_forward);
 
-    noise.Draw(movement);
+    noise.Draw(movement_offset);
     fb_noise.Unbind();
 
 
@@ -124,7 +105,7 @@ void Display() {
 
     // Draw a quad on the ground.
     glViewport(0, 0, window_width, window_height);
-    grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, movement);
+    grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, movement_offset);
     sky.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
 }
 
@@ -295,40 +276,40 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     case 'W':
 	if (action == GLFW_PRESS) {
 	    cout << "Forward" << endl;
-	    mv_forward = true;
+	    mv_forward = 1;
 	}
 	else if (action == GLFW_RELEASE) {
-	    mv_forward = false;
+	    mv_forward = 0;
 	}
 	break;
 
     case 'S':
 	if (action == GLFW_PRESS) {
 	    cout << "Backward" << endl;
-	    mv_backward = true;
+	    mv_forward = -1;
 	}
 	else if (action == GLFW_RELEASE) {
-	    mv_backward = false;
+	    mv_forward = 0;
 	}
 	break;
 
     case 'A':
 	if (action == GLFW_PRESS) {
 	    cout << "Left" << endl;
-	    mv_left = true;
+	    mv_right = -1;
 	}
 	else if (action == GLFW_RELEASE) {
-	    mv_left = false;
+	    mv_right = 0;
 	}
 	break;
 
     case 'D':
 	if (action == GLFW_PRESS) {
 	    cout << "Right" << endl;
-	    mv_right = true;
+	    mv_right = 1;
 	}
 	else if (action == GLFW_RELEASE) {
-	    mv_right = false;
+	    mv_right = 0;
 	}
 	break;
 

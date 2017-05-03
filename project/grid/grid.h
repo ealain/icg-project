@@ -151,7 +151,7 @@ public:
 
     void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
 	      const glm::mat4 &view = IDENTITY_MATRIX,
-	      const glm::mat4 &projection = IDENTITY_MATRIX, const glm::vec3 movement = glm::vec3(0,0,0)) {
+	      const glm::mat4 &projection = IDENTITY_MATRIX, const glm::vec2 movement = glm::vec2(0,0)) {
 	glUseProgram(program_id_);
 	glBindVertexArray(vertex_array_id_);
 
@@ -177,7 +177,7 @@ public:
 	glUniform1i(glGetUniformLocation(program_id_, "rockTex"), 4);
 
 	//Set Offset position
-	glUniform3f(glGetUniformLocation(program_id_, "movement"), movement.x, movement.y, movement.z);
+	glUniform2f(glGetUniformLocation(program_id_, "movement"), movement.x, movement.y);
 	//Seet time
 	glUniform1f(glGetUniformLocation(program_id_, "time"), glfwGetTime());
 

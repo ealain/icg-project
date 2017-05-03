@@ -88,9 +88,8 @@ public:
 	    glUniform1f(grid_dim_id_, (float)GRID_DIM);
 	    GLint fmax_id_ = glGetUniformLocation(program_id_, "fmax");
 	    glUniform1i(fmax_id_, HIGH_FREQUENCY);
-	    GLint ratio_id = glGetUniformLocation(program_id_, "ratio");
-	    glUniform2f(ratio_id, (float)resolution_x_ / (float)HIGH_FREQUENCY,
-			(float)resolution_y_ / (float)HIGH_FREQUENCY);
+	    GLint resolution_id = glGetUniformLocation(program_id_, "resolution");
+	    glUniform2f(resolution_id, (float)resolution_x_, (float)resolution_y_);
         
         // Passing parameter
         GLint param = glGetUniformLocation(program_id_, "param");
@@ -98,7 +97,7 @@ public:
 	}
     }
 
-    void Draw(glm::vec3 movement) {
+    void Draw(glm::vec2 movement) {
 	
 	glUseProgram(program_id_);
 	glBindVertexArray(vertex_array_id_);

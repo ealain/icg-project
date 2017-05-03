@@ -15,7 +15,7 @@ uniform sampler2D grassTex;
 uniform sampler2D rockTex;
 uniform sampler2D sandTex;
 uniform sampler2D snowTex;
-uniform vec3 movement;
+uniform vec2 movement;
 uniform float time;
 
 
@@ -79,7 +79,7 @@ void main() {
     float alpha = 1.0;
 
     //relative position
-    vec2 position = uv + vec2(movement.x,movement.y)/10.0f;
+    vec2 position = uv + movement;
 
     // Setting ambient light
     float ambient = 0.6f;

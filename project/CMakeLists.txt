@@ -1,7 +1,7 @@
 # the exercise name is nothing else than the directory
 get_filename_component(EXERCISENAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 file(GLOB_RECURSE SOURCES "*.cpp")
-file(GLOB_RECURSE HEADERS "*.h")
+file(GLOB_RECURSE HEADERS "*.h" ".hpp")
 
 message(STATUS "Copying textures to build folder")
 file(COPY textures DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
