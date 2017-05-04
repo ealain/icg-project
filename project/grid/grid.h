@@ -16,6 +16,7 @@ private:
     GLuint num_indices_;                    // Number of vertices to render
     GLuint MVP_id_;                         // Model, view, proj matrix ID
     GLuint MV_id_;
+    GLuint loc_zero;
 
 public:
     void Init(int grid_size, GLuint texture_id, glm::vec3 light_pos = glm::vec3(0.0f, 0.0f, 1.0f)) {
@@ -84,7 +85,9 @@ public:
 	// Other uniforms
 	MVP_id_ = glGetUniformLocation(program_id_, "MVP");
 	MV_id_ = glGetUniformLocation(program_id_, "MV");
-
+    
+    loc_zero = glGetUniformLocation(program_id_, "zero");
+    
 	GLuint light_pos_id = glGetUniformLocation(program_id_, "MV");
 	glUniform3f(light_pos_id, (GLfloat)light_pos.x, (GLfloat)light_pos.y, (GLfloat)light_pos.z);
 
@@ -106,13 +109,16 @@ public:
 
     void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
 	      const glm::mat4 &view = IDENTITY_MATRIX,
-	      const glm::mat4 &projection = IDENTITY_MATRIX) {
+	      const glm::mat4 &projection = IDENTITY_MATRIX, int z = 1) {
 	glUseProgram(program_id_);
 	glBindVertexArray(vertex_array_id_);
+    
 
 	// Bind texture
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture_id_);
+    
+    glUniform1i(loc_zero, z);
 
 	// Setup MVP
 	glm::mat4 MVP = projection*view*model;
