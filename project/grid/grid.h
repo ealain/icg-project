@@ -118,7 +118,13 @@ public:
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture_id_);
     
-    glUniform1i(loc_zero, z);
+    int ze = z;
+    glUniform1i(loc_zero, ze);
+    
+    if (z == 0) {
+        glClearColor(0.7, 0.7, 0.7 /*gray*/, 0.0 /*solid*/);
+    }
+    
 
 	// Setup MVP
 	glm::mat4 MVP = projection*view*model;
@@ -136,6 +142,9 @@ public:
 
 	glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
 
+    glClearColor(0.7, 0.7, 0.7 /*gray*/, 1.0 /*solid*/);
+
+    
 	glBindVertexArray(0);
 	glUseProgram(0);
     }

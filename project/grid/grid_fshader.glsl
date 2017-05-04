@@ -15,7 +15,7 @@ uniform int zero;
 
 void main() {
     
-    if (true) {
+    if (zero == 1) {
     
     // Set up some useful color for interpolation
         float alpha = 1.0; 
@@ -48,11 +48,14 @@ void main() {
             color = mix(white, color_tmp, 0.4);
         }
         else if(height < 0.0){
-            color = mix(darken_blue, blue, height*100);
+            color = mix(darken_blue, blue, height);
         }
         else {
             color = mix(mix(green, white, height / 0.6f), color_tmp, 0.5);
         }
+        
+        color.a = 1.0;
+        
         
     } else {
         
@@ -84,14 +87,19 @@ void main() {
         // Set up color in function of the height
         if(height > 0.6){
             color = mix(white, color_tmp, 0.4);
+            color.a = 1.0;
+
         }
         else if(height < 0.0){
-            color = mix(darken_blue, blue, height*100);
+            color = mix(darken_blue, blue, height);
             color.a = 0.0;
         }
         else {
             color = mix(mix(green, white, height / 0.6f), color_tmp, 0.5);
+            color.a = 1.0;
+
         }
+        
     }
     
     //color.a = 1.0;

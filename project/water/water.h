@@ -108,10 +108,13 @@ public:
     
     void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
 	      const glm::mat4 &view = IDENTITY_MATRIX,
-	      const glm::mat4 &projection = IDENTITY_MATRIX) {
+	      const glm::mat4 &projection = IDENTITY_MATRIX, float time = 0) {
             
         glUseProgram(program_id_);
         glBindVertexArray(vertex_array_id_);
+        
+        glUniform1f(glGetUniformLocation(program_id_, "time"), time);
+
         
         // bind textures
         glActiveTexture(GL_TEXTURE0); // water_tex
