@@ -46,7 +46,7 @@ class FrameBuffer {
                 // see Table.2 on
                 // khronos.org/opengles/sdk/docs/man3/docbook4/xhtml/glTexImage2D.xml
                 if(nb_channel == 3) {
-                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width_, height_, 0,
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_, height_, 0,
                         GL_RGB, GL_UNSIGNED_BYTE, NULL);
                 } else {
                     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width_, height_, 0,

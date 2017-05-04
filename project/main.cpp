@@ -52,10 +52,6 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 void Init() {
     // Sets background color
-    
-    glEnable (GL_BLEND); 
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     glClearColor(0.7, 0.7, 0.7 /*gray*/, 0.0 /*solid*/);
 
     int noise_texture_resolution_x = 1024;
@@ -144,7 +140,9 @@ void Display() {
     fb_water.Bind();
     //glViewport(0, 0, window_width, window_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
+    
+    glEnable(GL_BLEND); 
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     view_matrix = camera.invY();
     //camera.invY();
@@ -159,6 +157,8 @@ void Display() {
     //glViewport(0, 0, window_width, window_height);
 
     water.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, time);
+    
+    glDisable(GL_BLEND);
     
 
 }
