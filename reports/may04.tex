@@ -48,7 +48,7 @@
 
 {\it Main contributor: Enguerrand.}
 
-
+At first, we use the height to set up textures (sand, grass, rock and snow). Then we use some mix to have more realistic texture. The coefficient of the mix depends on the inclination and on the height. We also add a time dependence to represent the seasons and make the snow disappear.
 
 \subsubsection{Improving steep slopes and realistic beaches}
 
@@ -88,8 +88,7 @@ The user may dynamically (while pressing aforementioned movement keys) change th
 
 {\it Main contributor: Josselin.}
 
-
-
+We are implementing water reflection. We used the same concept as in the Homework 4, namely reflecting the camera under the water. We then draw a second time the now reflected terrain in a framebuffer, which is sent to a \texttt{water.h} class, which draw a second plan at height zero representing the water with the reflection.
 
 \section{Fraction of the Workload}
 
@@ -102,7 +101,13 @@ The user may dynamically (while pressing aforementioned movement keys) change th
 
 \section{Screenshot}
 
+\begin{center}
+\includegraphics[width=15cm]{view.png}
+\end{center}
+
 \textcolor{red}{Waiting for water reflection}
+
+
 
 % \begin{center}
 % \includegraphics[width=15cm]{screeMontain.png}
