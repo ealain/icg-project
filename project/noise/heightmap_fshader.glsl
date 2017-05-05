@@ -93,7 +93,9 @@ float perlin_noise() {
 		   interpolation(y/ratio_y - j));
 }
 
-
+float beach_function(float t) {
+    return -atan(70.0f*t)/70.0f + t;
+}
 
 void main() {
 
@@ -120,7 +122,7 @@ void main() {
 	ratio_y *= float(f-1) / (f/2 -1);
     }
 
-    color = vec3(n_total / pow(param, iteration-1));
+    color = vec3(beach_function(n_total / pow(param, iteration-1)));
 
     // Debugging...
     // color = vec3(int(1.2f));

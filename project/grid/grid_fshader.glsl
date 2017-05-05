@@ -21,8 +21,8 @@ uniform float time;
 
 //Set the height of different element
 float waterHeight = 0.0;
-float sandHeight = waterHeight - 0.001f;
-float grassHeight = 0.07;
+float sandHeight = waterHeight + 0.001f;
+float grassHeight = 0.06;
 float snowHeight = 0.09;
 float rockHeight =  snowHeight - 0.01;
 
@@ -108,14 +108,18 @@ void main() {
     vec3 rockTex = texture(rockTex, scale * position).rgb;
     vec3 snowTex = texture(snowTex, scale * position).rgb;
 
-    float delta_sand = 0.005;
+    float delta_sand = 0.002f;
 
     sandHeight += delta_sand;
 
     //mixed texture
     vec3 MixALtRockSnwoTex = mix(rockTex, snowTex, saison(Interpol(rockHeight, snowHeight)));
     vec3 MixALtRockGrassTex = mix(grassTex, rockTex, Interpol(grassHeight, rockHeight));
+
+    vec3 MixAngSnowRockTex = mix(MixALtRockSnwoTex, rockTex, soft_interpolation(1.0f-cosAngle));
+    vec3 MixAngRockRockTex = mix(MixALtRockGrassTex, rockTex, sharp_interpolation(1.0f-cosAngle));
     vec3 MixAngRockGrassTex = mix(grassTex, rockTex, sharp_interpolation(1.0f-cosAngle));
+
     vec3 MixSandTex = mix(MixAngRockGrassTex, sandTex, sharp_interpolation(1.0f-cosAngle));
     // Texture for any transition between Sand and Grass
     vec3 softSG = mix(sandTex, grassTex, soft_shifted_interpolation((height-waterHeight)/(delta_sand+waterHeight)));
@@ -128,14 +132,14 @@ void main() {
 	texColor = MixAngRockGrassTex;
 	// If the pixel is sufficiently close to the water to receive sand
 	if(height < (delta_sand+waterHeight))
-	    if(cosAngle < 0.5f)
+	    // if(cosAngle < 0.5f)
 		texColor = mix(softSG, MixAngRockGrassTex, sharp_interpolation((1.0f-cosAngle)+0.1f));
-	    else
-		texColor = mix(grassTex, softSG, sharp_interpolation(cosAngle-0.1));
+	    // else
+	    // 	texColor = mix(grassTex, softSG, sharp_interpolation(cosAngle-0.1));
     } else if(height < rockHeight){
-        texColor = MixALtRockGrassTex;
+        texColor = MixAngRockRockTex;
     } else {
-	texColor = MixALtRockSnwoTex;
+	texColor = MixAngSnowRockTex;
     }
 
     vec3 result = light * texColor;
