@@ -32,9 +32,10 @@ vec3 light_pos;
 
 Camera camera;
 bool dragging;
-bool zooming;
 
-char mv_forward, mv_right;
+bool mv_forward, mv_backward, mv_right, mv_left;
+bool turn_right, turn_left, turn_up, turn_down;
+bool camera_forward, camera_backward;
 
 FrameBuffer fb_noise;
 Heightmap noise;
@@ -73,11 +74,20 @@ void Init() {
 
     view_matrix = camera.getViewMatrix();
 
-    mv_forward = 0;
-    mv_right = 0;
+    mv_forward = false;
+    mv_right = false;
+    mv_left = false;
+    mv_right = false;
+
+    turn_up = false;
+    turn_down = false;
+    turn_left = false;
+    turn_right = false;
 
     dragging = false;
-    zooming = false;
+    camera_forward = false;
+    camera_backward = false;
+
 }
 
 // Gets called for every frame.
@@ -85,21 +95,36 @@ void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     fb_noise.Bind();
-    vec2 movement_offset = movement(camera.getViewDirection(), mv_right, mv_forward);
+    vec2 movement_offset = movement(camera.getViewDirection(), mv_right, mv_left,
+				    mv_forward, mv_backward);
 
     noise.Draw(movement_offset);
     fb_noise.Unbind();
 
 
     // Change view direction and / or zoom
-    if(dragging || zooming) {
+    if(dragging || camera_forward || camera_backward ||
+       turn_left || turn_right || turn_up || turn_down ||
+       mv_forward || mv_backward) {
 	double xpos, ypos;
 	glfwGetCursorPos(window, &xpos, &ypos);
 	vec2 p = TransformScreenCoords(xpos, ypos);
 	if(dragging)
 	    camera.Drag(p.x, p.y);
-	if(zooming)
-	    camera.Zoom(p.y);
+	if(camera_forward)
+	    camera.Forward(1);
+        if(camera_backward)
+	    camera.Forward(-1);
+	if(turn_right)
+	    camera.Turn_h(1);
+        if(turn_left)
+	    camera.Turn_h(-1);
+	if(turn_up)
+	    camera.Turn_v(1);
+        if(turn_down)
+	    camera.Turn_v(-1);
+	if(mv_forward || mv_backward)
+	    camera.UpDown(mv_backward);
 	view_matrix = camera.getViewMatrix();
     }
 
@@ -218,8 +243,7 @@ vec2 TransformScreenCoords(int x, int y) {
 }
 
 void MouseButton(GLFWwindow* window, int button, int action, int mod) {
-    if ((button == GLFW_MOUSE_BUTTON_LEFT || button == GLFW_MOUSE_BUTTON_RIGHT)
-	&& action == GLFW_PRESS) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
 	double x_i, y_i;
 	glfwGetCursorPos(window, &x_i, &y_i);
 	vec2 p = TransformScreenCoords(x_i, y_i);
@@ -227,7 +251,6 @@ void MouseButton(GLFWwindow* window, int button, int action, int mod) {
     }
 
     dragging = (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS);
-    zooming = (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS);
 }
 
 void MousePos(GLFWwindow* window, double x, double y) {
@@ -276,40 +299,116 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     case 'W':
 	if (action == GLFW_PRESS) {
 	    cout << "Forward" << endl;
-	    mv_forward = 1;
+	    mv_forward = true;
 	}
 	else if (action == GLFW_RELEASE) {
-	    mv_forward = 0;
+	    mv_forward = false;
 	}
 	break;
 
     case 'S':
 	if (action == GLFW_PRESS) {
 	    cout << "Backward" << endl;
-	    mv_forward = -1;
+	    mv_backward = true;
 	}
 	else if (action == GLFW_RELEASE) {
-	    mv_forward = 0;
+	    mv_backward = false;
 	}
 	break;
 
     case 'A':
 	if (action == GLFW_PRESS) {
-	    cout << "Left" << endl;
-	    mv_right = -1;
+	    cout << "Turn left" << endl;
+	    turn_left = true;
+	    double x_i, y_i;
+	    glfwGetCursorPos(window, &x_i, &y_i);
+	    vec2 p = TransformScreenCoords(x_i, y_i);
+	    camera.BeginDrag(p.x, p.y);
 	}
 	else if (action == GLFW_RELEASE) {
-	    mv_right = 0;
+	    turn_left = false;
 	}
 	break;
 
     case 'D':
 	if (action == GLFW_PRESS) {
-	    cout << "Right" << endl;
-	    mv_right = 1;
+	    cout << "Turn right" << endl;
+	    turn_right = true;
+	    double x_i, y_i;
+	    glfwGetCursorPos(window, &x_i, &y_i);
+	    vec2 p = TransformScreenCoords(x_i, y_i);
+	    camera.BeginDrag(p.x, p.y);
 	}
 	else if (action == GLFW_RELEASE) {
-	    mv_right = 0;
+	    turn_right = false;
+	}
+	break;
+
+    case 'Q':
+	if (action == GLFW_PRESS) {
+	    cout << "Turn down" << endl;
+	    turn_down = true;
+	    double x_i, y_i;
+	    glfwGetCursorPos(window, &x_i, &y_i);
+	    vec2 p = TransformScreenCoords(x_i, y_i);
+	    camera.BeginDrag(p.x, p.y);
+	}
+	else if (action == GLFW_RELEASE) {
+	    turn_down = false;
+	}
+	break;
+
+    case 'E':
+	if (action == GLFW_PRESS) {
+	    cout << "Turn up" << endl;
+	    turn_up = true;
+	    double x_i, y_i;
+	    glfwGetCursorPos(window, &x_i, &y_i);
+	    vec2 p = TransformScreenCoords(x_i, y_i);
+	    camera.BeginDrag(p.x, p.y);
+	}
+	else if (action == GLFW_RELEASE) {
+	    turn_up = false;
+	}
+	break;
+
+    case 'Z':
+	if (action == GLFW_PRESS) {
+	    cout << "Camera left" << endl;
+	    mv_left = true;
+	}
+	else if (action == GLFW_RELEASE) {
+	    mv_left = false;
+	}
+	break;
+
+    case 'C':
+	if (action == GLFW_PRESS) {
+	    cout << "Camera right" << endl;
+	    mv_right = true;
+	}
+	else if (action == GLFW_RELEASE) {
+	    mv_right = false;
+	}
+	break;
+
+    case 'T':
+	if (action == GLFW_PRESS) {
+	    cout << "Camera forward" << endl;
+	    camera_forward = true;
+	}
+	else if (action == GLFW_RELEASE) {
+	    camera_forward = false;
+	}
+	break;
+
+    case 'G':
+	if (action == GLFW_PRESS) {
+	    cout << "Camera backward" << endl;
+	    camera_backward = true;
+	}
+	else if (action == GLFW_RELEASE) {
+	    camera_backward = false;
 	}
 	break;
 

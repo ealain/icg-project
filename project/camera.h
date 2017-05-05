@@ -52,8 +52,36 @@ public:
 	return;
     }
 
-    void Zoom(float y) {
-	eye_ += (y - anchor_pos_.y) * 0.05f * (vec3(view_dir_));
+    void Forward(char forward) {
+	eye_ += float(forward) * 0.05f * (vec3(view_dir_));
+    }
+
+    void Turn_h(char turn_right) {
+	vec3 translation_vector = vec3(inverse(rotation_) * vec4(float(turn_right), 0.0f, 0.0f, 0.0f));
+	view_dir_ = view_dir_ + translation_vector  * float(glfwGetTime() - last_time_);
+	last_time_ = glfwGetTime();
+	projectOntoSphere(view_dir_);
+
+	rotation_ = lookAt(vec3(0.0f), view_dir_, vec3(0.0f, 1.0f, 0.0f));
+    }
+
+    void Turn_v(char turn_up) {
+	vec3 translation_vector = vec3(inverse(rotation_) * vec4(0.0f, float(turn_up), 0.0f, 0.0f));
+	view_dir_ = view_dir_ + translation_vector  * float(glfwGetTime() - last_time_);
+	last_time_ = glfwGetTime();
+	projectOntoSphere(view_dir_);
+
+	rotation_ = lookAt(vec3(0.0f), view_dir_, vec3(0.0f, 1.0f, 0.0f));
+    }
+
+    void UpDown(bool backward) {
+	// Compensation (no need to look very high to get up)
+	vec3 view_dir_cp = view_dir_;
+	view_dir_cp.y += 0.05f;
+	if(backward)
+	    eye_ += vec3(0.0f, -0.05f, 0.0f) * 0.05f * (vec3(view_dir_cp));
+	else
+	    eye_ += vec3(0.0f, 0.05f, 0.0f) * 0.05f * (vec3(view_dir_cp));
     }
 
     vec3 getViewDirection() {return view_dir_;}
