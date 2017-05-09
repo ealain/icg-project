@@ -42,6 +42,13 @@ Heightmap noise;
 Grid grid;
 Water water;
 
+GLuint water_texture_id;
+
+int noise_texture_resolution_x;
+int noise_texture_resolution_y;
+
+GLuint noise_texture_id;
+
 
 vec2 TransformScreenCoords(int x, int y);
 void MouseButton(GLFWwindow* window, int button, int action, int mod);
@@ -53,16 +60,17 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 void Init() {
     // Sets background color
     glClearColor(0.7, 0.7, 0.7 /*gray*/, 0.0 /*solid*/);
+    //glfwGetFramebufferSize(window, &window_width, &window_height);
 
-    int noise_texture_resolution_x = 1024;
-    int noise_texture_resolution_y = 1024;
-    GLuint noise_texture_id = fb_noise.Init(noise_texture_resolution_x,
+    noise_texture_resolution_x = 1024;
+    noise_texture_resolution_y = 1024;
+    noise_texture_id = fb_noise.Init(noise_texture_resolution_x,
         noise_texture_resolution_y, true);
     noise.Init(noise_texture_resolution_x,
         noise_texture_resolution_y);
            
-    GLuint water_texture_id = fb_water.Init(noise_texture_resolution_x, 
-        noise_texture_resolution_y, true, 3);
+    water_texture_id = fb_water.Init(window_width, 
+        window_height, true, 3);
     water.Init(512, noise_texture_resolution_x, 
         noise_texture_resolution_y, water_texture_id, noise_texture_id);
     
@@ -130,7 +138,7 @@ void Display() {
     }
     view_matrix = camera.getViewMatrix();
     
-    //glViewport(0, 0, window_width, window_height);
+    glViewport(0, 0, window_width, window_height);
     
     const float time = glfwGetTime();
 
@@ -148,13 +156,14 @@ void Display() {
     //camera.invY();
     //view_matrix = camera.getViewMatrix();
     
-    
+    glViewport(0, 0, window_width, window_height);
+
     grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, 0);
     fb_water.Unbind();
     
     view_matrix = camera.getViewMatrix();
 
-    //glViewport(0, 0, window_width, window_height);
+    glViewport(0, 0, window_width, window_height);
 
     water.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, time);
     
@@ -213,12 +222,13 @@ int main(int argc, char *argv[]) {
 
     cout << "OpenGL" << glGetString(GL_VERSION) << endl;
 
+    glfwGetFramebufferSize(window, &window_width, &window_height);
+
     // Initialize our OpenGL program
     Init();
 
     // Update the window size with the framebuffer size (on hidpi screens the
     // framebuffer is bigger)
-    glfwGetFramebufferSize(window, &window_width, &window_height);
     SetupProjection(window, window_width, window_height);
 
     // Render loop
@@ -296,9 +306,16 @@ void SetupProjection(GLFWwindow* window, int width, int height) {
 	 << window_width << "x" << window_height << "." << endl;
 
     glViewport(0, 0, window_width, window_height);
+    
+//    water_texture_id = fb_water.Init(window_width, window_height, true, 3);
 
     // Use a perspective projection instead;
     projection_matrix = PerspectiveProjection(45.0f, (GLfloat)window_width / window_height, 0.1f, 100.0f);
+    water_texture_id = fb_water.Init(window_width, 
+        window_height, true, 3);
+    water.Init(512, noise_texture_resolution_x, 
+        noise_texture_resolution_y, water_texture_id, noise_texture_id);
+
 }
 
 void ErrorCallback(int error, const char* description) {

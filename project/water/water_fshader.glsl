@@ -5,7 +5,6 @@ in vec2 uv;
 out vec4 color;
 
 uniform sampler2D water_tex;
-uniform sampler2D noise_tex;
 
 void main() {
     //color = texture(water_tex, uv).rgb;
