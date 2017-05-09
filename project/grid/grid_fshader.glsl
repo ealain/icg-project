@@ -55,7 +55,7 @@ void main() {
         }
         
         color.a = 1.0;
-        
+        //color = vec4(0.0, 1.0, 0.0, 1.0);
         
     } else {
         
@@ -91,8 +91,9 @@ void main() {
 
         }
         else if(height < 0.0){
-            color = mix(darken_blue, blue, height);
-            color.a = 0.0;
+            //color = mix(darken_blue, blue, height);
+            //color = vec4(1.0, 0.0, 0.0, 0.0);
+            discard;
         }
         else {
             color = mix(mix(green, white, height / 0.6f), color_tmp, 0.5);
