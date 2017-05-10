@@ -9,6 +9,7 @@
 
 #include "grid/grid.h"
 #include "sky/skybox.h"
+#include "water/water.h"
 
 #include "framebuffer.h"
 #include "camera.h"
@@ -38,10 +39,19 @@ bool turn_right, turn_left, turn_up, turn_down;
 bool camera_forward, camera_backward;
 
 FrameBuffer fb_noise;
+FrameBuffer fb_water;
 Heightmap noise;
 
 Grid grid;
 Skybox sky;
+Water water;
+
+GLuint water_texture_id;
+
+int noise_texture_resolution_x;
+int noise_texture_resolution_y;
+
+GLuint noise_texture_id;
 
 
 vec2 TransformScreenCoords(int x, int y);
@@ -62,6 +72,11 @@ void Init() {
 					    noise_texture_resolution_y, true);
     noise.Init(noise_texture_resolution_x,
 	       noise_texture_resolution_y);
+
+    water_texture_id = fb_water.Init(window_width, 
+        window_height, true, 3);
+    water.Init(512, noise_texture_resolution_x, 
+        noise_texture_resolution_y, water_texture_id, noise_texture_id);
 
     // Light source position
     vec3 light_pos = vec3(-1.0f, 1.0f, 1.0f);
@@ -125,13 +140,31 @@ void Display() {
 	    camera.Turn_v(-1);
 	if(mv_forward || mv_backward)
 	    camera.UpDown(mv_backward);
-	view_matrix = camera.getViewMatrix();
+	view_matrix = camera.getViewMatrix(); ///////__________________
     }
 
     // Draw a quad on the ground.
     glViewport(0, 0, window_width, window_height);
     grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, movement_offset);
     sky.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+
+    fb_water.Bind();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glEnable(GL_BLEND); 
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    view_matrix = camera.invY();
+    glViewport(0, 0, window_width, window_height);
+    grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, movement_offset, 0);
+    sky.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+    fb_water.Unbind();
+    
+    view_matrix = camera.getViewMatrix();
+
+    glViewport(0, 0, window_width, window_height);
+    water.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+    
+    glDisable(GL_BLEND);
 }
 
 
@@ -184,12 +217,14 @@ int main(int argc, char *argv[]) {
 
     cout << "OpenGL" << glGetString(GL_VERSION) << endl;
 
+
+	// Update the window size with the framebuffer size (on hidpi screens the
+    // framebuffer is bigger)
+    glfwGetFramebufferSize(window, &window_width, &window_height);
     // Initialize our OpenGL program
     Init();
 
-    // Update the window size with the framebuffer size (on hidpi screens the
-    // framebuffer is bigger)
-    glfwGetFramebufferSize(window, &window_width, &window_height);
+    
     SetupProjection(window, window_width, window_height);
 
     // Render loop
@@ -268,6 +303,11 @@ void SetupProjection(GLFWwindow* window, int width, int height) {
 
     // Use a perspective projection instead;
     projection_matrix = PerspectiveProjection(45.0f, (GLfloat)window_width / window_height, 0.1f, 100.0f);
+
+    water_texture_id = fb_water.Init(window_width, 
+        window_height, true, 3);
+    water.Init(512, noise_texture_resolution_x, 
+        noise_texture_resolution_y, water_texture_id, noise_texture_id);
 }
 
 void ErrorCallback(int error, const char* description) {

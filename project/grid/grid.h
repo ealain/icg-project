@@ -16,6 +16,7 @@ private:
     GLuint num_indices_;                    // Number of vertices to render
     GLuint MVP_id_;                         // Model, view, proj matrix ID
     GLuint MV_id_;
+    GLuint loc_zero;
     GLuint _grassTexId;
     GLuint _snowTexId;
     GLuint _sandTexId;
@@ -114,6 +115,8 @@ public:
 	// Other uniforms
 	MVP_id_ = glGetUniformLocation(program_id_, "MVP");
 	MV_id_ = glGetUniformLocation(program_id_, "MV");
+	loc_zero = glGetUniformLocation(program_id_, "zero");
+
 
 	GLuint light_pos_id = glGetUniformLocation(program_id_, "MV");
 	glUniform3f(light_pos_id, (GLfloat)light_pos.x, (GLfloat)light_pos.y, (GLfloat)light_pos.z);
@@ -151,7 +154,7 @@ public:
 
     void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
 	      const glm::mat4 &view = IDENTITY_MATRIX,
-	      const glm::mat4 &projection = IDENTITY_MATRIX, const glm::vec2 movement = glm::vec2(0,0)) {
+	      const glm::mat4 &projection = IDENTITY_MATRIX, const glm::vec2 movement = glm::vec2(0,0), int z = 1) {
 	glUseProgram(program_id_);
 	glBindVertexArray(vertex_array_id_);
 
@@ -181,7 +184,12 @@ public:
 	//Seet time
 	glUniform1f(glGetUniformLocation(program_id_, "time"), glfwGetTime());
 
+	int ze = z;
+    glUniform1i(loc_zero, ze);
 
+    if (z == 0) {
+        glClearColor(0.7, 0.7, 0.7 /*gray*/, 0.0 /*solid*/);
+    }
 
 
 	// Setup MVP
@@ -196,6 +204,9 @@ public:
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
+
+	glClearColor(0.7, 0.7, 0.7 /*gray*/, 1.0 /*solid*/);
+
 
 	glBindVertexArray(0);
 	glUseProgram(0);

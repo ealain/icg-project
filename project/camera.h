@@ -91,4 +91,17 @@ public:
 	mat4 translation = translate(IDENTITY_MATRIX, -eye_);
 	return rotation*translation;
     }
+
+    mat4 invY() {
+    eye_.y = -(eye_.y);
+    view_dir_.y = -view_dir_.y;
+        
+    mat4 rotation = lookAt(vec3(0.0f), view_dir_, vec3(0.0f, 1.0f, 0.0f));
+    mat4 translation = translate(IDENTITY_MATRIX, -eye_);
+        
+    eye_.y = -(eye_.y);
+    view_dir_.y = -view_dir_.y;
+        
+    return rotation*translation;
+    }
 };

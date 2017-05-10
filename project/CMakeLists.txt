@@ -12,7 +12,8 @@ file(COPY textures DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(GLOB SHADERS
   grid/*.glsl
   noise/*.glsl
-  sky/*.glsl)
+  sky/*.glsl
+  water/*.glsl)
 deploy_shaders_to_build_dir(${SHADERS})
 
 add_executable(${EXERCISENAME} ${SOURCES} ${HEADERS} ${SHADERS})

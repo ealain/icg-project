@@ -17,6 +17,8 @@ uniform sampler2D sandTex;
 uniform sampler2D snowTex;
 uniform vec2 movement;
 uniform float time;
+uniform int zero;
+
 
 
 //Set the height of different element
@@ -124,8 +126,13 @@ void main() {
     // Texture for any transition between Sand and Grass
     vec3 softSG = mix(sandTex, grassTex, soft_shifted_interpolation((height-waterHeight)/(delta_sand+waterHeight)));
 
+
     if(height < waterHeight){
-        texColor = mix(darken_blue, blue, height);
+        if (zero == 1) {
+            texColor = mix(darken_blue, blue, height);
+        } else {
+            discard;
+        }
     }
     else if(height < grassHeight){
 	// Default case
