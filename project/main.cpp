@@ -108,6 +108,8 @@ void Init() {
 // Gets called for every frame.
 void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    const float time = glfwGetTime();
+
 
     fb_noise.Bind();
     vec2 movement_offset = movement(camera.getViewDirection(), mv_right, mv_left,
@@ -162,7 +164,7 @@ void Display() {
     view_matrix = camera.getViewMatrix();
 
     glViewport(0, 0, window_width, window_height);
-    water.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+    water.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, time);
     
     glDisable(GL_BLEND);
 }
