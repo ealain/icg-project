@@ -90,11 +90,18 @@ float perlin_noise() {
 		   0.25f*dot(g2, d2)+0.5f,
 		   interpolation(x/ratio_x - i)),
 
-		   interpolation(y/ratio_y - j));
+	       interpolation(y/ratio_y - j));
 }
 
 float beach_function(float t) {
-    return -atan(70.0f*t)/70.0f + t;
+    return -atan(50.0f*t)/50.0f + t;
+}
+
+float transition(float t) {
+    float f = cos(t*2*3.141592);
+    if(f < 0)
+	f = 0.0f;
+    return f;
 }
 
 void main() {
@@ -122,7 +129,16 @@ void main() {
 	ratio_y *= float(f-1) / (f/2 -1);
     }
 
-    color = vec3(beach_function(n_total / pow(param, iteration-1)));
+
+    float h = n_total / pow(param, iteration-1);
+    // Activate beach only even squares of checkerboard
+    if((int(x * 4.0f / ratio_x))%2 == 0) {
+	float f_i = (x * 4.0f / ratio_x) - int(x * 4.0f / ratio_x);
+	float f_j = (y * 4.0f / ratio_y) - int(y * 4.0f / ratio_y);
+	color = vec3(mix(mix(beach_function(h), h, transition(f_i)), h, transition(f_j)));
+    }
+    else
+	color = vec3(h);
 
     // Debugging...
     // color = vec3(int(1.2f));

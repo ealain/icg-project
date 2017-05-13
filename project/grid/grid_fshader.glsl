@@ -23,7 +23,6 @@ uniform int zero;
 
 //Set the height of different element
 float waterHeight = 0.0;
-float sandHeight = waterHeight + 0.001f;
 float grassHeight = 0.06;
 float snowHeight = 0.09;
 float rockHeight =  snowHeight - 0.01;
@@ -110,9 +109,7 @@ void main() {
     vec3 rockTex = texture(rockTex, scale * position).rgb;
     vec3 snowTex = texture(snowTex, scale * position).rgb;
 
-    float delta_sand = 0.002f;
-
-    sandHeight += delta_sand;
+    float delta_sand = 0.001f;
 
     //mixed texture
     vec3 MixALtRockSnwoTex = mix(rockTex, snowTex, saison(Interpol(rockHeight, snowHeight)));
@@ -129,20 +126,17 @@ void main() {
 
     if(height < waterHeight){
         if (zero == 1) {
-            texColor = mix(darken_blue, blue, height);
+            texColor = sandTex;
         } else {
             discard;
-        }
+	}
     }
     else if(height < grassHeight){
 	// Default case
 	texColor = MixAngRockGrassTex;
 	// If the pixel is sufficiently close to the water to receive sand
 	if(height < (delta_sand+waterHeight))
-	    // if(cosAngle < 0.5f)
-		texColor = mix(softSG, MixAngRockGrassTex, sharp_interpolation((1.0f-cosAngle)+0.1f));
-	    // else
-	    // 	texColor = mix(grassTex, softSG, sharp_interpolation(cosAngle-0.1));
+	    texColor = mix(softSG, MixAngRockGrassTex, sharp_interpolation((1.0f-cosAngle)+0.4f));
     } else if(height < rockHeight){
         texColor = MixAngRockRockTex;
     } else {
