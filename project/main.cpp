@@ -51,10 +51,6 @@ Shadow shadow;
 
 GLuint water_texture_id;
 GLuint shadow_texture_id;
-
-int noise_texture_resolution_x;
-int noise_texture_resolution_y;
-
 GLuint noise_texture_id;
 
 
@@ -110,8 +106,6 @@ void Init() {
 // Gets called for every frame.
 void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    const float time = glfwGetTime();
-
 
     fb_noise.Bind();
     vec2 movement_offset = movement(camera.getViewDirection(), mv_right, mv_left,
@@ -120,39 +114,17 @@ void Display() {
     noise.Draw(movement_offset);
     fb_noise.Unbind();
 
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    vec2 p = TransformScreenCoords(xpos, ypos);
+    camera.Update(dragging, p, mv_forward, mv_backward, camera_forward, camera_backward,
+		  turn_right, turn_left, turn_up, turn_down);
 
-    // Change view direction and / or zoom
-    if(dragging || camera_forward || camera_backward ||
-       turn_left || turn_right || turn_up || turn_down ||
-       mv_forward || mv_backward) {
-	double xpos, ypos;
-	glfwGetCursorPos(window, &xpos, &ypos);
-	vec2 p = TransformScreenCoords(xpos, ypos);
-	if(dragging)
-	    camera.Drag(p.x, p.y);
-	if(camera_forward)
-	    camera.Forward(1);
-        if(camera_backward)
-	    camera.Forward(-1);
-	if(turn_right)
-	    camera.Turn_h(1);
-        if(turn_left)
-	    camera.Turn_h(-1);
-	if(turn_up)
-	    camera.Turn_v(1);
-        if(turn_down)
-	    camera.Turn_v(-1);
-	if(mv_forward || mv_backward)
-	    camera.UpDown(mv_backward);
-	view_matrix = camera.getViewMatrix(); ///////__________________
-    }
+    view_matrix = camera.getViewMatrix();
 
     // Draw a quad on the ground.
     glViewport(0, 0, window_width, window_height);
     grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, movement_offset);
-
-
-
 
     sky.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
 
@@ -171,7 +143,7 @@ void Display() {
     view_matrix = camera.getViewMatrix();
 
     glViewport(0, 0, window_width, window_height);
-    water.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, time);
+    water.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, glfwGetTime());
 
     glDisable(GL_BLEND);
 }
@@ -227,7 +199,7 @@ int main(int argc, char *argv[]) {
     cout << "OpenGL" << glGetString(GL_VERSION) << endl;
 
 
-	// Update the window size with the framebuffer size (on hidpi screens the
+    // Update the window size with the framebuffer size (on hidpi screens the
     // framebuffer is bigger)
     glfwGetFramebufferSize(window, &window_width, &window_height);
     // Initialize our OpenGL program
@@ -315,8 +287,7 @@ void SetupProjection(GLFWwindow* window, int width, int height) {
 
     water_texture_id = fb_water.Init(window_width,
 				     window_height, 3, true);
-    water.Init(512, noise_texture_resolution_x,
-        noise_texture_resolution_y, water_texture_id, noise_texture_id);
+    water.Init(512, 1024, 1024, water_texture_id, noise_texture_id);
 }
 
 void ErrorCallback(int error, const char* description) {
@@ -423,7 +394,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
     case 'Z':
 	if (action == GLFW_PRESS) {
-	    cout << "Camera left" << endl;
+	    cout << "Left" << endl;
 	    mv_left = true;
 	}
 	else if (action == GLFW_RELEASE) {
@@ -433,7 +404,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
     case 'C':
 	if (action == GLFW_PRESS) {
-	    cout << "Camera right" << endl;
+	    cout << "Right" << endl;
 	    mv_right = true;
 	}
 	else if (action == GLFW_RELEASE) {
