@@ -12,5 +12,6 @@ void main() {
     
     vec2 uv_ = vec2(gl_FragCoord.x / window_width, 1.0f -  gl_FragCoord.y / window_height);
 
-    color = vec4(texture(water_tex, uv_).rgb, 0.8);
+    color = mix(vec4(0.25f, 0.61f, 0.73f, 0.3f), // Natural color of water
+		texture(water_tex, uv_), 0.8);
 }

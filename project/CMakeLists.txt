@@ -13,7 +13,8 @@ file(GLOB SHADERS
   grid/*.glsl
   noise/*.glsl
   sky/*.glsl
-  water/*.glsl)
+  water/*.glsl
+  shadow/*.glsl)
 deploy_shaders_to_build_dir(${SHADERS})
 
 add_executable(${EXERCISENAME} ${SOURCES} ${HEADERS} ${SHADERS})

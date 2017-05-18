@@ -2,10 +2,10 @@
 
 in vec3 texCoord;
 
-out vec3 color;
+out vec4 color;
 
 uniform samplerCube tex;
 
 void main() {
-    color = texture(tex, texCoord).rgb;
+    color = vec4(texture(tex, texCoord).rgb, 0.8);
 }

@@ -10,6 +10,7 @@
 #include "grid/grid.h"
 #include "sky/skybox.h"
 #include "water/water.h"
+#include "shadow/shadow.hpp"
 
 #include "framebuffer.h"
 #include "camera.h"
@@ -40,13 +41,16 @@ bool camera_forward, camera_backward;
 
 FrameBuffer fb_noise;
 FrameBuffer fb_water;
+FrameBuffer fb_shadow;
 Heightmap noise;
 
 Grid grid;
 Skybox sky;
 Water water;
+Shadow shadow;
 
 GLuint water_texture_id;
+GLuint shadow_texture_id;
 
 int noise_texture_resolution_x;
 int noise_texture_resolution_y;
@@ -66,17 +70,14 @@ void Init() {
     // Sets background color
     glClearColor(0.7, 0.7, 0.7 /*gray*/, 1.0 /*solid*/);
 
-    int noise_texture_resolution_x = 1024;
-    int noise_texture_resolution_y = 1024;
-    GLuint noise_texture_id = fb_noise.Init(noise_texture_resolution_x,
-					    noise_texture_resolution_y, true);
-    noise.Init(noise_texture_resolution_x,
-	       noise_texture_resolution_y);
+    GLuint noise_texture_id = fb_noise.Init(1024, 1024, 1, true);
+    noise.Init(1024, 1024);
 
-    water_texture_id = fb_water.Init(window_width, 
-        window_height, true, 3);
-    water.Init(512, noise_texture_resolution_x, 
-        noise_texture_resolution_y, water_texture_id, noise_texture_id);
+    shadow_texture_id = fb_shadow.Init(1024, 1024, 2);
+    shadow.Init(1024, 1024, shadow_texture_id);
+
+    water_texture_id = fb_water.Init(window_width, window_height, 3, true);
+    water.Init(512, 1024, 1024, water_texture_id, noise_texture_id);
 
     // Light source position
     vec3 light_pos = vec3(1.0f, 1.0f, 2.0f);
@@ -86,6 +87,7 @@ void Init() {
 
     // Enable depth test.
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 
     view_matrix = camera.getViewMatrix();
 
@@ -148,24 +150,29 @@ void Display() {
     // Draw a quad on the ground.
     glViewport(0, 0, window_width, window_height);
     grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, movement_offset);
+
+
+
+
     sky.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+
+    glEnable(GL_BLEND);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     fb_water.Bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    glEnable(GL_BLEND); 
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     view_matrix = camera.invY();
     glViewport(0, 0, window_width, window_height);
     grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, movement_offset, 0);
     sky.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
     fb_water.Unbind();
-    
+
     view_matrix = camera.getViewMatrix();
 
     glViewport(0, 0, window_width, window_height);
     water.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, time);
-    
+
     glDisable(GL_BLEND);
 }
 
@@ -226,7 +233,7 @@ int main(int argc, char *argv[]) {
     // Initialize our OpenGL program
     Init();
 
-    
+
     SetupProjection(window, window_width, window_height);
 
     // Render loop
@@ -306,9 +313,9 @@ void SetupProjection(GLFWwindow* window, int width, int height) {
     // Use a perspective projection instead;
     projection_matrix = PerspectiveProjection(45.0f, (GLfloat)window_width / window_height, 0.1f, 100.0f);
 
-    water_texture_id = fb_water.Init(window_width, 
-        window_height, true, 3);
-    water.Init(512, noise_texture_resolution_x, 
+    water_texture_id = fb_water.Init(window_width,
+				     window_height, 3, true);
+    water.Init(512, noise_texture_resolution_x,
         noise_texture_resolution_y, water_texture_id, noise_texture_id);
 }
 

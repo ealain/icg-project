@@ -88,9 +88,6 @@ public:
         
         GLuint loc_tex_water = glGetUniformLocation(program_id_, "water_tex");
         glUniform1i(loc_tex_water, 0);
-        
-        GLuint loc_tex_noise = glGetUniformLocation(program_id_, "noise_tex");
-        glUniform1i(loc_tex_noise, 1);
 
         glBindVertexArray(0);
         glUseProgram(0);
@@ -116,12 +113,9 @@ public:
         glUniform1f(glGetUniformLocation(program_id_, "time"), time);
 
         
-        // bind textures
-        glActiveTexture(GL_TEXTURE0); // water_tex
+        // Bind textures
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture_water_);
-        
-        glActiveTexture(GL_TEXTURE1); // noise_tex
-        glBindTexture(GL_TEXTURE_2D, texture_noise_);
                 
         // Setup MVP
         glm::mat4 MVP = projection*view*model;

@@ -77,8 +77,6 @@ float soft_interpolation(float t) {
 
 void main() {
 
-    float alpha = 1.0;
-
     //relative position
     vec2 position = uv + movement;
 
@@ -99,6 +97,9 @@ void main() {
 
 
     float cosAngle = dot(normal, vec3(0.0f, 1.0f, 0.0f));
+
+    if(cosAngle <= 0.0f)
+	discard;
 
     vec3 texColor;
 
@@ -125,11 +126,7 @@ void main() {
 
 
     if(height < waterHeight){
-        if (zero == 1) {
-            texColor = sandTex;
-        } else {
-            discard;
-	}
+	texColor = sandTex;
     }
     else if(height < grassHeight){
 	// Default case
@@ -144,6 +141,13 @@ void main() {
     }
 
     vec3 result = light * texColor;
-    color = vec4(result, alpha);
 
+    if(zero == 0)
+	if(height < waterHeight)
+	    //color = vec4(result, 1.0);
+	    discard;
+	else
+	    color = vec4(result, 0.8);
+    else
+	color = vec4(result, 1.0);
 }
