@@ -79,7 +79,7 @@ void Init() {
         noise_texture_resolution_y, water_texture_id, noise_texture_id);
 
     // Light source position
-    vec3 light_pos = vec3(-1.0f, 1.0f, 1.0f);
+    vec3 light_pos = vec3(1.0f, 1.0f, 2.0f);
 
     grid.Init(512, noise_texture_id, light_pos);
     sky.Init(2.0f);

@@ -118,7 +118,7 @@ public:
 	loc_zero = glGetUniformLocation(program_id_, "zero");
 
 
-	GLuint light_pos_id = glGetUniformLocation(program_id_, "MV");
+	GLuint light_pos_id = glGetUniformLocation(program_id_, "light_pos");
 	glUniform3f(light_pos_id, (GLfloat)light_pos.x, (GLfloat)light_pos.y, (GLfloat)light_pos.z);
 
 	// Bind Grass Texture
