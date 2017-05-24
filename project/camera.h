@@ -55,7 +55,8 @@ public:
 
     void Update(bool dragging, vec2 p, bool mv_forward, bool mv_backward,
 		bool camera_forward, bool camera_backward,
-		bool turn_right, bool turn_left, bool turn_up, bool turn_down) {
+		bool turn_right, bool turn_left, bool turn_up, bool turn_down,
+		bool fps_mode, float altitude) {
 
 	float delta = glfwGetTime() - previous_time_;
 	previous_time_ = glfwGetTime();
@@ -139,7 +140,15 @@ public:
 
 	this->UpDown(inertia_ud_);
 
+	if(fps_mode) {
+	    if(altitude < 0.0f)
+		altitude = 0.0f;
+	    eye_.x = 0.0f;
+	    eye_.y = exp(altitude) - 0.95f;
+	    eye_.z = 0.0f;
 	}
+
+    }
 
     void Forward(char forward) {
 	eye_ += float(forward) * 0.05f * (vec3(view_dir_));
@@ -176,6 +185,12 @@ public:
 	mat4 rotation = lookAt(vec3(0.0f), view_dir_, vec3(0.0f, 1.0f, 0.0f));
 	mat4 translation = translate(IDENTITY_MATRIX, -eye_);
 	return rotation*translation;
+    }
+
+    vec2 getTerrainOffset() {
+	vec3 vd = getViewDirection();
+	return vec2(dot(vec3(1.0f, 0.0f, 0.0f), getViewDirection()),
+			 dot(vec3(0.0f, 0.0f, -1.0f), getViewDirection()));
     }
 
     mat4 invY() {

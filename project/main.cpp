@@ -38,6 +38,7 @@ bool dragging;
 bool mv_forward, mv_backward, mv_right, mv_left;
 bool turn_right, turn_left, turn_up, turn_down;
 bool camera_forward, camera_backward;
+bool fps_mode;
 
 FrameBuffer fb_noise;
 FrameBuffer fb_water;
@@ -112,13 +113,17 @@ void Display() {
 				    mv_forward, mv_backward);
 
     noise.Draw(movement_offset);
+    float altitude;
+    vec2 terrain_offset = camera.getTerrainOffset();
+    glReadPixels(512 + 50 * terrain_offset.x, 512 + 50 * terrain_offset.y,
+		 1, 1, GL_RED, GL_FLOAT, &altitude);
     fb_noise.Unbind();
 
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
     vec2 p = TransformScreenCoords(xpos, ypos);
     camera.Update(dragging, p, mv_forward, mv_backward, camera_forward, camera_backward,
-		  turn_right, turn_left, turn_up, turn_down);
+		  turn_right, turn_left, turn_up, turn_down, fps_mode, altitude);
 
     view_matrix = camera.getViewMatrix();
 
@@ -416,6 +421,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	if (action == GLFW_PRESS) {
 	    cout << "Camera forward" << endl;
 	    camera_forward = true;
+	    fps_mode = false;
 	}
 	else if (action == GLFW_RELEASE) {
 	    camera_forward = false;
@@ -426,12 +432,25 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	if (action == GLFW_PRESS) {
 	    cout << "Camera backward" << endl;
 	    camera_backward = true;
+	    fps_mode = false;
 	}
 	else if (action == GLFW_RELEASE) {
 	    camera_backward = false;
 	}
 	break;
 
+    case '1':
+	if (action == GLFW_PRESS) {
+	    cout << "FPS mode" << endl;
+	    fps_mode = true;
+	}
+	break;
+
+    case '2':
+	if (action == GLFW_PRESS) {
+	    cout << "Normal mode" << endl;
+	    fps_mode = false;
+	}
     default:
 	break;
     }
