@@ -53,6 +53,12 @@ public:
 	return;
     }
 
+    void Bezier(vec3 eye, vec3 view){
+    	view_dir_ = view; 
+    	eye_ = eye; 
+    	return; 
+    }
+
     void Update(bool dragging, vec2 p, bool mv_forward, bool mv_backward,
 		bool camera_forward, bool camera_backward,
 		bool turn_right, bool turn_left, bool turn_up, bool turn_down,

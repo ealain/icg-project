@@ -18,6 +18,10 @@
 #include "noise/heightmap.hpp"
 #include "noise/movement.hpp"
 
+
+#include "bezier/bezier.h"
+#include "bezier/bezierCamera.h"
+
 using namespace glm;
 
 GLFWwindow* window;
@@ -54,6 +58,10 @@ GLuint water_texture_id;
 GLuint shadow_texture_id;
 GLuint noise_texture_id;
 
+int speed = 0; 
+int controlSpeed = 1; 
+BezierCamera BezierCam; 
+
 
 vec2 TransformScreenCoords(int x, int y);
 void MouseButton(GLFWwindow* window, int button, int action, int mod);
@@ -87,6 +95,8 @@ void Init() {
     glDepthFunc(GL_LESS);
 
     view_matrix = camera.getViewMatrix();
+
+    BezierCam.init(); 
 
     mv_forward = false;
     mv_right = false;
@@ -124,6 +134,16 @@ void Display() {
     vec2 p = TransformScreenCoords(xpos, ypos);
     camera.Update(dragging, p, mv_forward, mv_backward, camera_forward, camera_backward,
 		  turn_right, turn_left, turn_up, turn_down, fps_mode, altitude);
+
+    if(BezierCam.get_bezier() && speed < BezierCam.get_indexMax() && speed >= BezierCam.get_indexMin()){
+        cout << "Test : " <<  speed << endl; 
+        BezierCam.BezCam(camera, speed); 
+        speed += controlSpeed; 
+        if (speed > BezierCam.get_indexMax()){
+            BezierCam.changeBezier(); 
+        }
+    } 
+
 
     view_matrix = camera.getViewMatrix();
 
@@ -322,24 +342,55 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	break;
 
     case 'W':
-	if (action == GLFW_PRESS) {
-	    cout << "Forward" << endl;
-	    mv_forward = true;
-	}
-	else if (action == GLFW_RELEASE) {
-	    mv_forward = false;
-	}
-	break;
+        if (action == GLFW_PRESS) {
+            if(BezierCam.get_bezier()){
+                controlSpeed += 1;
+                cout << "ON AUGMENTE LA VITESSE " << endl; 
+                if (controlSpeed > 4){
+                    controlSpeed = 4; 
+                }   
+            }
+            else {
+                cout << "Forward" << endl;
+                mv_forward = true;
+            }
+        } else if (action == GLFW_RELEASE) {
+            mv_forward = false;
+        }
+    break;
 
     case 'S':
-	if (action == GLFW_PRESS) {
-	    cout << "Backward" << endl;
-	    mv_backward = true;
-	}
-	else if (action == GLFW_RELEASE) {
-	    mv_backward = false;
-	}
-	break;
+        if (action == GLFW_PRESS) {
+            if(BezierCam.get_bezier()){
+                controlSpeed -= 1; 
+                if(controlSpeed < -4){
+                    controlSpeed = -4; 
+                }
+            }
+            else {
+                cout << "Backward" << endl;
+                mv_backward = true;
+            }
+        }
+        else if (action == GLFW_RELEASE) {
+            mv_backward = false;
+        }
+    break;
+
+    case '3':
+        if (action == GLFW_PRESS){
+            BezierCam.changeMode(1); 
+            speed = BezierCam.get_indexMin(); 
+
+        }
+        break; 
+    case '4':
+        if (action == GLFW_PRESS){
+            cout << "change mode 2" << endl; 
+            BezierCam.changeMode(2); 
+            speed = BezierCam.get_indexMin(); 
+        }
+    break; 
 
     case 'A':
 	if (action == GLFW_PRESS) {
@@ -354,6 +405,20 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	    turn_left = false;
 	}
 	break;
+
+     case 'B':
+    
+    if (action == GLFW_PRESS) {
+        cout << "Bezier Mode" << endl;
+        speed = BezierCam.get_indexMin(); 
+        
+        controlSpeed = 1;
+        BezierCam.changeBezier(); 
+        cout << "Bezier : " << BezierCam.get_bezier() << endl; 
+    }
+    else if (action == GLFW_RELEASE) {
+    }
+    break;
 
     case 'D':
 	if (action == GLFW_PRESS) {
