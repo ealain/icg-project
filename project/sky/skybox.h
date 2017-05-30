@@ -56,12 +56,12 @@ public:
 			      ZERO_STRIDE, ZERO_BUFFER_OFFSET);
 
 	//// Load texture ////
-	const string files[] = {"textures/sky/sunny_day_rt.jpeg",
-				"textures/sky/sunny_day_lf.jpeg",
+	const string files[] = {"textures/sky/sunny_day_rt2.jpeg",
+				"textures/sky/sunny_day_lf2.jpeg",
 				"textures/sky/sunny_day_up.jpeg",
-				"textures/sky/sunny_day_dn.jpeg",
-				"textures/sky/sunny_day_bk.jpeg",
-				"textures/sky/sunny_day_ft.jpeg"};
+				"textures/sky/sunny_day_dn2.jpeg",
+				"textures/sky/sunny_day_bk2.jpeg",
+				"textures/sky/sunny_day_ft2.jpeg"};
 
 	glGenTextures(1, &texture_id_);
 	int width, height, nb_component;

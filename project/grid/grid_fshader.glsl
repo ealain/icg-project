@@ -5,6 +5,8 @@
 in vec2 uv;
 in vec3 pos_3d;
 in float height;
+in float dist;
+
 
 out vec4 color;
 
@@ -18,6 +20,8 @@ uniform sampler2D snowTex;
 uniform vec2 movement;
 uniform float time;
 uniform int zero;
+uniform int fogSelector;
+
 
 
 
@@ -26,6 +30,11 @@ float waterHeight = 0.0;
 float grassHeight = 0.06;
 float snowHeight = 0.09;
 float rockHeight =  snowHeight - 0.01;
+
+const vec4 fogColor = vec4(0.816, 0.859, 0.857, 1.0);
+const float FogDensity = 2;
+
+
 
 // Set up some useful color for interpolation
 vec3 blue = vec3(0.0,0.0,1.0);
@@ -150,4 +159,22 @@ void main() {
 	    color = vec4(result, 0.8);
     else
 	color = vec4(result, 1.0);
+    
+    float fogFactor;
+
+    if(fogSelector == 1)//linear fog
+    {
+       // 20 - fog starts; 80 - fog ends
+       fogFactor = (1.0 - dist);
+       fogFactor = clamp(fogFactor, 0.0, 1.0);
+     
+       //if you inverse color in glsl mix function you have to
+       //put 1.0 - fogFactor
+       color = mix(fogColor, color, fogFactor);
+    } else if (fogSelector == 2) {
+        fogFactor = 1.0 /exp( (dist * FogDensity)* (dist * FogDensity));
+        fogFactor = clamp( fogFactor, 0.0, 1.0 );
+ 
+        color = mix(fogColor, color, fogFactor);
+    }
 }

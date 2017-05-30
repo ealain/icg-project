@@ -516,6 +516,12 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	    cout << "Normal mode" << endl;
 	    fps_mode = false;
 	}
+    
+    case 'F':
+    if (action == GLFW_PRESS) {
+        water.toggleFog();
+        grid.toggleFog();
+    }
     default:
 	break;
     }

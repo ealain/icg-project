@@ -14,6 +14,9 @@ private:
     GLuint MVP_id_;
     GLuint texture_noise_;
     
+    GLuint loc_fog;
+    int fogSelector = 0;
+    
 public:
     void Init(int grid_size, int resolution_x, int resolution_y, GLuint texture_water, GLuint texture_noise = -1) {
         texture_water_ = texture_water;
@@ -85,12 +88,22 @@ public:
         
         // Setup uniform
         MVP_id_ = glGetUniformLocation(program_id_, "MVP");
+        loc_fog = glGetUniformLocation(program_id_, "fogSelector");
+
         
         GLuint loc_tex_water = glGetUniformLocation(program_id_, "water_tex");
         glUniform1i(loc_tex_water, 0);
 
         glBindVertexArray(0);
         glUseProgram(0);
+    }
+    
+    void toggleFog() {
+        glUseProgram(program_id_);
+        fogSelector = (fogSelector+1)%3;
+        glUniform1i(loc_fog, fogSelector);
+        glUseProgram(0);
+
     }
 
     void Cleanup() {

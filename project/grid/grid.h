@@ -21,6 +21,8 @@ private:
     GLuint _snowTexId;
     GLuint _sandTexId;
     GLuint _rockTexId;
+    GLuint loc_fog;
+    int fogSelector = 0;
 
     GLuint gen2DTexture(const char* imagePath, GLint format) {
 	GLuint textureId;
@@ -116,6 +118,8 @@ public:
 	MVP_id_ = glGetUniformLocation(program_id_, "MVP");
 	MV_id_ = glGetUniformLocation(program_id_, "MV");
 	loc_zero = glGetUniformLocation(program_id_, "zero");
+    loc_fog = glGetUniformLocation(program_id_, "fogSelector");
+
 
 
 	GLuint light_pos_id = glGetUniformLocation(program_id_, "light_pos");
@@ -136,6 +140,22 @@ public:
 	glBindVertexArray(0);
 	glUseProgram(0);
     }
+    
+    void toggleFog() {
+    glUseProgram(program_id_);
+    fogSelector = (fogSelector+1)%3;
+    if (fogSelector == 0) {
+        cout << "No fog" << endl;;
+    } else if (fogSelector == 1) {
+        cout << "Linear fog" << endl;
+    } else if (fogSelector == 2) {
+        cout << "Exponential fog" << endl;
+    }
+    
+    glUniform1i(loc_fog, fogSelector);
+    glUseProgram(0);
+
+}
 
     void Cleanup() {
 	glBindVertexArray(0);

@@ -6,13 +6,18 @@ in vec2 position;
 
 out vec2 uv;
 out vec3 pos_3d;
+out float dist;
+
 
 uniform mat4 MVP;
 uniform float time;
 
 void main() {
 
-    uv = (position + vec2(1.0, 1.0)) * 0.5;  
+    uv = (position + vec2(1.0, 1.0)) * 0.5; 
+    
+    dist = sqrt(position.x*position.x+position.y*position.y);
+ 
  /* 
     float dist = uv[0] + uv[1];
     float waves_amplitude = 0.01;
