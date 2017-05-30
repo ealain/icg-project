@@ -31,7 +31,7 @@ float grassHeight = 0.06;
 float snowHeight = 0.09;
 float rockHeight =  snowHeight - 0.01;
 
-const vec4 fogColor = vec4(0.816, 0.859, 0.857, 1.0);
+const vec4 fogColor = vec4(0.93333, 0.952941, 0.97647, 1.0);
 const float FogDensity = 2;
 
 
@@ -165,7 +165,7 @@ void main() {
     if(fogSelector == 1)//linear fog
     {
        // 20 - fog starts; 80 - fog ends
-       fogFactor = (1.0 - dist);
+       fogFactor = (1.0 - soft_shifted_interpolation(dist));
        fogFactor = clamp(fogFactor, 0.0, 1.0);
      
        //if you inverse color in glsl mix function you have to

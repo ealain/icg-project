@@ -136,7 +136,6 @@ void Display() {
 		  turn_right, turn_left, turn_up, turn_down, fps_mode, altitude);
 
     if(BezierCam.get_bezier() && speed < BezierCam.get_indexMax() && speed >= BezierCam.get_indexMin()){
-        cout << "Test : " <<  speed << endl; 
         BezierCam.BezCam(camera, speed); 
         speed += controlSpeed; 
         if (speed > BezierCam.get_indexMax()){
@@ -151,7 +150,7 @@ void Display() {
     glViewport(0, 0, window_width, window_height);
     grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, movement_offset);
 
-    sky.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
+    sky.Draw(translate(IDENTITY_MATRIX, vec3(0.0, 0.3, 0.0)), view_matrix, projection_matrix);
 
     glEnable(GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

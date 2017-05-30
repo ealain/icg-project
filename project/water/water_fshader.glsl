@@ -9,10 +9,15 @@ out vec4 color;
 uniform sampler2D water_tex;
 
 uniform int fogSelector;
-const vec4 fogColor = vec4(0.816, 0.859, 0.857, 1.0);
+const vec4 fogColor = vec4(0.93333, 0.952941, 0.97647, 1.0);
 
 const float FogDensity = 2;
 
+/*        0.7       ->         0.1
+	  0.9       ->         0.9        */
+float soft_shifted_interpolation(float t) {
+    return 1.023499 + (-4.982824*pow(10,-17) - 1.023499)/(1 + pow((t/0.7993572), 16.74859));
+}
 
 void main() {
     int window_width = textureSize(water_tex, 0).x;
@@ -30,7 +35,7 @@ void main() {
     if(fogSelector == 1)//linear fog
     {
        // 20 - fog starts; 80 - fog ends
-       fogFactor = (1.0 - dist)/(1);
+       fogFactor = (1.0 - soft_shifted_interpolation(dist))/(1);
        fogFactor = clamp(fogFactor, 0.0, 1.0);
      
        //if you inverse color in glsl mix function you have to
