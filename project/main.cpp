@@ -62,6 +62,8 @@ int speed = 0;
 int controlSpeed = 1; 
 BezierCamera BezierCam; 
 
+vec3 shift = vec3(0.0, -0.1, 0.0);
+int fogSelector = 0;
 
 vec2 TransformScreenCoords(int x, int y);
 void MouseButton(GLFWwindow* window, int button, int action, int mod);
@@ -150,7 +152,7 @@ void Display() {
     glViewport(0, 0, window_width, window_height);
     grid.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix, movement_offset);
 
-    sky.Draw(translate(IDENTITY_MATRIX, vec3(0.0, 0.3, 0.0)), view_matrix, projection_matrix);
+    sky.Draw(translate(IDENTITY_MATRIX, shift), view_matrix, projection_matrix);
 
     glEnable(GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -520,6 +522,13 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     if (action == GLFW_PRESS) {
         water.toggleFog();
         grid.toggleFog();
+        fogSelector = (fogSelector+1)%3;
+        if (fogSelector == 0) {
+            shift = vec3(0.0, -0.1, 0.0);
+        } else {
+            shift = vec3(0.0, 0.3, 0.0);
+        }
+        
     }
     default:
 	break;
