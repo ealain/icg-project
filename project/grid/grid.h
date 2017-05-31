@@ -24,30 +24,38 @@ private:
     GLuint loc_fog;
     int fogSelector = 0;
 
-    GLuint gen2DTexture(const char* imagePath, GLint format) {
-	GLuint textureId;
-	glGenTextures(1, &textureId);
-	glBindTexture(GL_TEXTURE_2D, textureId);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glGenerateMipmap(textureId);
+    GLuint gen2DTexture(const char* path, GLint format) {
+		GLuint texId;
+		glGenTextures(1, &texId);
+		glBindTexture(GL_TEXTURE_2D, texId);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glGenerateMipmap(texId);
 
-	int req_comp = (format == GL_RGB) ? STBI_rgb : STBI_rgb_alpha;
+		int stbi;
 
-	int width, height, nb_comp;
-	unsigned char* image = stbi_load(imagePath, &width, &height, &nb_comp, req_comp);
-	if (image != NULL) {
-	    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image);
-	    glGenerateMipmap(GL_TEXTURE_2D);
-	    stbi_image_free(image);
-	}
+		if(format == GL_RGB){
+			stbi = STBI_rgb;
+		} else {
+			stbi = STBI_rgb_alpha;
+		}
 
-	glBindTexture(GL_TEXTURE_2D, 0);
-	return textureId;
+		int w, h, comp;
+		unsigned char* img = stbi_load(path, &w, &h, &comp, stbi);
+		if (img != NULL) {
+		    glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, GL_UNSIGNED_BYTE, img);
+		    glGenerateMipmap(GL_TEXTURE_2D);
+		    stbi_image_free(img);
+		} else {
+			cout << "Fail to load texture from the image in : " << path << endl; 
+		}
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		return texId;
     }
 
 public:
