@@ -517,6 +517,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	    cout << "Normal mode" << endl;
 	    fps_mode = false;
 	}
+    break;
     
     case 'F':
     if (action == GLFW_PRESS) {
@@ -530,6 +531,8 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         }
         
     }
+    break;
+    
     default:
 	break;
     }
