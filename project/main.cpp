@@ -378,14 +378,14 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         }
     break;
 
-    case '3':
+    case '9':
         if (action == GLFW_PRESS){
             BezierCam.changeMode(1); 
             speed = BezierCam.get_indexMin(); 
 
         }
         break; 
-    case '4':
+    case '8':
         if (action == GLFW_PRESS){
             cout << "change mode 2" << endl; 
             BezierCam.changeMode(2); 
