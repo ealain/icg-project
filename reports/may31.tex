@@ -1,0 +1,84 @@
+\documentclass[12pt]{article}
+
+\usepackage[a4paper, margin=2cm]{geometry}
+
+\setlength{\marginparwidth}{0pt}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{datetime}
+
+\usepackage{setspace}
+\setstretch{1.2}
+
+\usepackage{fancyhdr}
+\setlength{\headheight}{15pt}
+\usepackage{lastpage}
+\renewcommand\headrulewidth{0pt}
+\renewcommand\footrulewidth{0.3pt}
+\fancyhead{}
+\fancyfoot[C]{\thepage ~/ \pageref{LastPage}}
+\pagestyle{fancy}
+
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{hyperref}
+
+
+\begin{document}
+
+\title{Computer graphics project}
+\author{Éloi \textsc{Alain} \and Enguerrand \textsc{Granoux} \and Josselin \textsc{Held}}
+\newdate{date}{31}{05}{2017}
+\date{\displaydate{date}}
+
+\maketitle
+
+\tableofcontents
+
+\section{Features beyond minimal requirements}
+
+\paragraph{Infinite terrain} Key bindings \texttt{Z} (left), \texttt{C} (right), \texttt{W} (forward) and \texttt{S} (backward) -- in normal mode -- change a position offset that plays a role in the heightmap generation. The user may use these keys to move by a translation with respect to the view direction.
+
+\paragraph{Texture realism} Whenever a \textit{slope is steep enough}, the texture is changed to \textit{rock}. \textit{Beaches are smartly generated} -- low altitude is computed for some Perlin noise cells.
+
+\paragraph{Water reflection} The scene is rendered from a symmetrized point of view to a framebuffer with the mountains and the sky partially transparent. The texture obtained is then applied to the water plane.
+
+\paragraph{Fog} Pressing \texttt{F} switches between two types of fog at the end of the terrain.
+
+\paragraph{Camera} Optional features
+\begin{itemize}
+\item pressing \texttt{T} and \texttt{G} moves the camera around the objects of the scene (including the skybox) in the view direction;
+\item the view direction may be changed gradually using the mouse pointer.
+\end{itemize}
+
+\paragraph{Terrain aspect} Terrain aspect may be adjusted at any time using \texttt{P} and \texttt{L}.
+
+\paragraph{Multiple Bézier paths} The different paths are accessible via \texttt{8} and \texttt{9}. Bézier mode is enabled with \texttt{B}.
+
+
+\section{Group work}
+
+We shared the work week by week, between who was more motivated and comfortable with each subject. Each one of us has been stuck by at least one bug and was able to solve it. So we could all benefit from our efforts. Nevertheless, discussion and ideas were shared to help each other.
+
+\begin{enumerate}
+\item Éloi Alain: 33 \%
+\item Enguerrand Granoux: 33 \%
+\item Josselin Held: 33 \%
+\end{enumerate}
+
+The source code is available on \href{https://github.com/ealain}{GitHub} and the video on \href{https://youtu.be/c4cxYly9IRQ}{YouTube}.
+
+\section{References}
+
+At the beginning, we reused some of the homework code. The methods seen in class allowed us to implement most of the features. Other than that, we used the following (in order of importance):
+\begin{enumerate}
+\item {\tt www.khronos.org/opengl/wiki}
+\item {\tt learnopengl.com}
+\item {\tt in2gpu.com/2014/07/22/create-fog-shader}
+\end{enumerate}
+
+\end{document}
+
+%  LocalWords:  symmetrized Bézier
